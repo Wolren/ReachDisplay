@@ -75,6 +75,23 @@ public abstract class InGameHudMixin {
 
             }
         }
+
+
+        if (DisplayConfig.averageHitDistanceEnable) {
+            Entity entity = SharedData.getInstance().getEntity();
+            if (entity != null) {
+                if (DisplayConfig.showPlayers && !entity.isPlayer()) return;
+                else {
+                    String displayString = getAverageHitDisplayString(SharedData.getInstance().getAverageDistance());
+
+                    String colorHex = DisplayConfig.averageHitDistanceColor;
+                    int colorInt = parseColorWithDefault(colorHex);
+                    float scale = DisplayConfig.averageHitDistanceScale;
+
+                    renderText(matrices, displayString, getAverageHitDistance(displayString).x, getAverageHitDistance(displayString).y, colorInt, scale);
+                }
+            }
+        }
     }
 
     @Unique
@@ -85,6 +102,15 @@ public abstract class InGameHudMixin {
         } catch (NumberFormatException e) {
             return 16777215;
         }
+    }
+
+    @Unique
+    private String getAverageHitDisplayString(Double distance) {
+        int decimalPlaces = DisplayConfig.averageHitDistanceDecimalPlaces;
+
+        DecimalFormat df = new DecimalFormat("0." + "0".repeat(decimalPlaces));
+
+        return df.format(distance);
     }
 
     @Unique
@@ -134,6 +160,7 @@ public abstract class InGameHudMixin {
         return Math.max(target, min);
     }
 
+
     @Unique
     public Vec2f getDistance(String displayString) {
         float y = (client.getWindow().getScaledHeight() / 2.0F) - DisplayConfig.yOffset;
@@ -145,6 +172,13 @@ public abstract class InGameHudMixin {
     public Vec2f getHitDistance(String displayString) {
         float y = (client.getWindow().getScaledHeight() / 2.0F) - DisplayConfig.hitYOffset;
         float x = (client.getWindow().getScaledWidth() / 2.0F - ((client.textRenderer.getWidth(displayString) / 2.0F) * DisplayConfig.hitDistanceScale)) - DisplayConfig.hitXOffset;
+        return new Vec2f(x, y);
+    }
+
+    @Unique
+    public Vec2f getAverageHitDistance(String displayString) {
+        float y = (client.getWindow().getScaledHeight() / 2.0F) - DisplayConfig.averageHitYOffset;
+        float x = (client.getWindow().getScaledWidth() / 2.0F - ((client.textRenderer.getWidth(displayString) / 2.0F) * DisplayConfig.averageHitDistanceScale)) - DisplayConfig.averageHitXOffset;
         return new Vec2f(x, y);
     }
 }

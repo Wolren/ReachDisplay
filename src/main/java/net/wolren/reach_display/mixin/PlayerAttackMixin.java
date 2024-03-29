@@ -13,13 +13,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerEntity.class)
-public class PlayerAttackMixin {
+public abstract class PlayerAttackMixin {
     @Inject(method = "attack(Lnet/minecraft/entity/Entity;)V", at = @At("HEAD"))
     private void onAttack(Entity target, CallbackInfo ci) {
         if (target instanceof LivingEntity) {
             PlayerEntity player = (PlayerEntity) (Object) this;
             double distance = player.getEyePos().distanceTo(closestPointToBox(player.getEyePos(), target.getBoundingBox()));
             SharedData.getInstance().setDistanceAndTarget(distance, target);
+            SharedData.getInstance().addDistanceToAverage(distance);
         }
     }
 
@@ -36,4 +37,3 @@ public class PlayerAttackMixin {
         return Math.max(target, min);
     }
 }
-
