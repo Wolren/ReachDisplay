@@ -7,3 +7,4 @@
 [![Minecraft](https://img.shields.io/badge/Minecraft-1.20-green?logo=minecraft)](https://minecraft.net)
 [![Modrinth](https://img.shields.io/badge/Modrinth-ReachDisplay-00d562?logo=modrinth)](https://modrinth.com/mod/reachdisplay)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/Wolren/ReachDisplay/badge)](https://securityscorecards.dev/viewer/?uri=github.com/Wolren/ReachDisplay)
+[![Socket](https://img.shields.io/badge/Socket-Supply%20Chain%20Security-333?logo=socketdotdev)](https://socket.dev)
