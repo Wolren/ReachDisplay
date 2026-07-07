@@ -4,12 +4,11 @@
 
 ### Major Changes
 
-- **Multi-project restructure** — Split into 5 version-specific subprojects:
+- **Multi-project restructure** — Split into 4 version-specific subprojects:
   - `version-1_17_1_18` (MC 1.18.2)
   - `version-1_19` (MC 1.19.4)
   - `version-1_20_1` (MC 1.20.1)
   - `version-1_21_11` (MC 1.21.11)
-  - `version-26_1_2` (MC 26.1.2)
 - **Entity filter system** — New filter/EntityFilterHelper with whitelist/blacklist mode, category toggles (Players, Hostile, Passive, Boss, Other), and custom entity ID matching
 - **Unified build config** — Shared Gradle configuration via root `build.gradle` (processResources, sourcesJar, publishing)
 
@@ -17,7 +16,7 @@
 
 - Config entries: `entityFilterEnable`, `entityFilterMode` (WHITELIST/BLACKLIST), per-category toggles, `entityFilterCustomIDs`
 - All 3 HUD display sections filtered with `!enable || shouldTrack(entity)`
-- Works across all 5 supported versions
+- Works across all 4 supported versions
 
 ### Build System
 
@@ -48,4 +47,3 @@
 | 1.19.4  | `reach_display-3.0.0-1.19.4.jar` |
 | 1.20.1  | `reach_display-3.0.0-1.20.1.jar` |
 | 1.21.11 | `reach_display-3.0.0-1.21.11.jar` |
-| 26.1.2  | `reach_display-3.0.0-26.1.2.jar` |

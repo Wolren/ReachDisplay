@@ -14,4 +14,4 @@ include 'version-1_17_1_18'
 include 'version-1_19'
 include 'version-1_20_1'
 include 'version-1_21_11'
-include 'version-26_1_2'
+include 'version-26_1_2' // excluded: no official Mojang mappings for MC 26.1.2 available yet
