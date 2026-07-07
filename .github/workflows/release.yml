@@ -21,8 +21,6 @@ jobs:
             jdk: '21'
           - subproject: version-1_21_11
             jdk: '21'
-          - subproject: version-26_1_2
-            jdk: '25'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
