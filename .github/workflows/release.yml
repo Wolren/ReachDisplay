@@ -14,11 +14,11 @@ jobs:
       matrix:
         include:
           - subproject: version-1_17_1_18
-            jdk: '17'
+            jdk: '21'
           - subproject: version-1_19
-            jdk: '17'
+            jdk: '21'
           - subproject: version-1_20_1
-            jdk: '17'
+            jdk: '21'
           - subproject: version-1_21_11
             jdk: '21'
           - subproject: version-26_1_2
@@ -31,6 +31,22 @@ jobs:
         with:
           java-version: ${{ matrix.jdk }}
           distribution: 'temurin'
+      - name: Isolate subproject in settings.gradle
+        shell: bash
+        run: |
+          cat > settings.gradle <<'EOF'
+          pluginManagement {
+              repositories {
+                  maven {
+                      name = 'Fabric'
+                      url = 'https://maven.fabricmc.net/'
+                  }
+                  gradlePluginPortal()
+              }
+          }
+          rootProject.name = 'ReachDisplay'
+          include '${{ matrix.subproject }}'
+          EOF
       - name: Build ${{ matrix.subproject }}
         run: |
           chmod +x gradlew
