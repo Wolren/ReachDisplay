@@ -12,18 +12,24 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        subproject:
-          - version-1_17_1_18
-          - version-1_19
-          - version-1_20_1
-          - version-1_21_11
+        include:
+          - subproject: version-1_17_1_18
+            jdk: '17'
+          - subproject: version-1_19
+            jdk: '17'
+          - subproject: version-1_20_1
+            jdk: '17'
+          - subproject: version-1_21_11
+            jdk: '21'
+          - subproject: version-26_1_2
+            jdk: '25'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK 21
+      - name: Set up JDK ${{ matrix.jdk }}
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: ${{ matrix.jdk }}
           distribution: 'temurin'
       - name: Build ${{ matrix.subproject }}
         run: |
