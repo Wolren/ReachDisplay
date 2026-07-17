@@ -72,6 +72,7 @@ jobs:
         with:
           curseforge-id: 991296
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          curseforge-version: ${{ steps.check_modrinth.outputs.version }}
           files: ${{ matrix.subproject }}/build/libs/!(*-@(dev|sources|javadoc)).jar
           loaders: fabric
           fail-mode: warn
