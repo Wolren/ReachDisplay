@@ -61,6 +61,8 @@ jobs:
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           files: ${{ matrix.subproject }}/build/libs/!(*-@(dev|sources|javadoc)).jar
           loaders: fabric
+          fail-mode: warn
+          changelog-file: CHANGELOG.md
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
