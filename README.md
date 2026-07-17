@@ -1,4 +1,4 @@
-[![License](https://img.shields.io/github/license/Wolren/ReachDisplay)](LICENSE)
+[![License](https://img.shields.io/badge/license-ARR-red)](LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/Wolren/ReachDisplay)](https://github.com/Wolren/ReachDisplay/commits)
 [![Issues](https://img.shields.io/github/issues/Wolren/ReachDisplay)](https://github.com/Wolren/ReachDisplay/issues)
 [![Repo size](https://img.shields.io/github/repo-size/Wolren/ReachDisplay)](https://github.com/Wolren/ReachDisplay)

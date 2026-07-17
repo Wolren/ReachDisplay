@@ -4,6 +4,7 @@
 
 ### Major Changes
 
+- **License change** — Switched from GPL-3.0 to **All Rights Reserved (ARR)** for v3.0.0 and later. Old versions remain under GPL-3.0. Commercial redistribution and publishing forks under a different name are now explicitly prohibited.
 - **Multi-project restructure** — Split into 4 version-specific subprojects:
   - `version-1_17_1_18` (MC 1.18.2)
   - `version-1_19` (MC 1.19.4)
