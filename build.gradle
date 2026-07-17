@@ -61,7 +61,7 @@ subprojects {
         projectId = "reach-display"
         versionNumber = project.mod_version
         versionName = project.mod_version
-        uploadFile = remapJar
+        uploadFile = tasks.named('remapJar')
         gameVersions = [project.minecraft_version]
         loaders = ["fabric"]
         changelog = rootProject.file("CHANGELOG.md").text
