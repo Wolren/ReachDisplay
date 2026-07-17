@@ -2,10 +2,20 @@ plugins {
     id 'idea'
 }
 
+buildscript {
+    repositories {
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath 'com.modrinth.minotaur:Minotaur:2.9.0'
+    }
+}
+
 subprojects {
     apply plugin: 'java'
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
+    apply plugin: 'com.modrinth.minotaur'
 
     version = project.mod_version
     group = project.maven_group
@@ -44,6 +54,17 @@ subprojects {
     publishing {
         publications { mavenJava(MavenPublication) { from components.java } }
         repositories {}
+    }
+
+    modrinth {
+        token = System.getenv("MODRINTH_TOKEN")
+        projectId = "reach-display"
+        versionNumber = project.mod_version
+        versionName = project.mod_version
+        uploadFile = remapJar
+        gameVersions = [project.minecraft_version]
+        loaders = ["fabric"]
+        changelog = rootProject.file("CHANGELOG.md").text
     }
 }
 

@@ -49,6 +49,11 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew :${{ matrix.subproject }}:build --no-daemon
+      - name: Publish ${{ matrix.subproject }} to Modrinth
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: |
+          ./gradlew :${{ matrix.subproject }}:modrinth --no-daemon
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
