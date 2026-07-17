@@ -49,7 +49,20 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew :${{ matrix.subproject }}:build --no-daemon
+      - name: Check if version exists on Modrinth
+        id: check_modrinth
+        run: |
+          VERSION=$(grep 'mod_version' ${{ matrix.subproject }}/gradle.properties | cut -d= -f2)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          RESPONSE=$(curl -s "https://api.modrinth.com/v2/project/reach-display/version?version_number=$VERSION")
+          if echo "$RESPONSE" | grep -q '"id"'; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Version $VERSION already exists on Modrinth, skipping"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
       - name: Publish ${{ matrix.subproject }} to Modrinth
+        if: steps.check_modrinth.outputs.exists == 'false'
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
         run: |
