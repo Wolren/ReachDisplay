@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.17.13'
+    id 'fabric-loom' version '1.17.17'
 }
 
 boolean useQuilt = project.hasProperty('useQuilt') ? project.useQuilt.toBoolean() : false
