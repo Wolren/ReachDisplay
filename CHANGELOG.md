@@ -1,5 +1,21 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- MixinExtras 0.5.4 dependency (self-contained via `include`)
+- .editorconfig for consistent code style
+- CI matrix build — all 4 subprojects built in parallel
+- Automated release workflow triggered by version tags
+- Dependabot tracking for GitHub Actions updates
+
+### Infrastructure
+
+- CI now builds each subproject separately (fail-fast disabled)
+- Release workflow builds all versions, collects JARs, creates GitHub Release with changelog
+- Changelog follows KeepAChangelog format for automated extraction
+
 ## 3.0.0 — Multi-Version Restructure + Entity Filter
 
 ### Major Changes

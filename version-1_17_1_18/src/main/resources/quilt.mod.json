@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "quilt_loader": {
+    "group": "net.wolren",
+    "id": "reach_display",
+    "version": "${version}",
+    "metadata": {
+      "name": "Reach Display",
+      "description": "A configurable visual representation of your reach and hit distances",
+      "contributors": {
+        "Wolren": "Owner"
+      },
+      "contact": {
+        "homepage": "https://modrinth.com/project/reach-display",
+        "sources": "https://github.com/Wolren/ReachDisplay",
+        "repo": "https://github.com/Wolren/ReachDisplay",
+        "issues": "https://github.com/Wolren/ReachDisplay/issues"
+      },
+      "license": "GPL-3.0",
+      "icon": "assets/reach_display/icon.png"
+    },
+    "intermediate_mappings": "net.fabricmc:intermediary",
+    "entrypoints": {
+      "init": "net.wolren.reach_display.ReachDisplay",
+      "client_init": "net.wolren.reach_display.ReachDisplayClient"
+    },
+    "depends": [
+      {
+        "id": "quilt_loader",
+        "version": ">=0.17.0"
+      },
+      {
+        "id": "quilted_fabric_api",
+        "version": "*"
+      },
+      {
+        "id": "minecraft",
+        "version": ">=1.17.1 <=1.18.2"
+      },
+      {
+        "id": "midnightlib",
+        "version": ">=0.4.4"
+      }
+    ]
+  },
+  "mixin": "reach_display.mixins.json"
+}
