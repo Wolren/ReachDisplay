@@ -1,13 +1,24 @@
 plugins {
-    id 'fabric-loom' version '1.16-SNAPSHOT'
+    id 'fabric-loom' version '1.17.13'
 }
+
+boolean useQuilt = project.hasProperty('useQuilt') ? project.useQuilt.toBoolean() : false
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    if (useQuilt) {
+        modImplementation "org.quiltmc:quilt-loader:${project.quilt_loader_version}"
+        modImplementation "org.quiltmc.quilted-fabric-api:quilted-fabric-api:${project.quilted_fabric_api_version}"
+    } else {
+        modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+        modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    }
+
     modImplementation "maven.modrinth:midnightlib:${project.midnightlib_version}"
+
+    include modImplementation("io.github.llamalad7:mixinextras-fabric:${project.mixinextras_version}")
 }
 
 java {
