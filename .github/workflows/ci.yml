@@ -37,7 +37,10 @@ jobs:
         with:
           java-version: ${{ matrix.jdk }}
           distribution: 'temurin'
-      - name: Build ${{ matrix.subproject }}
+      - name: Build ${{ matrix.subproject }} (Fabric)
         run: |
           chmod +x gradlew
           ./gradlew :${{ matrix.subproject }}:build --no-daemon
+      - name: Build ${{ matrix.subproject }} (Quilt)
+        run: |
+          ./gradlew :${{ matrix.subproject }}:build -PuseQuilt=true --no-daemon

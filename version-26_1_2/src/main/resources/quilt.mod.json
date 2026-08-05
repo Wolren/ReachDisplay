@@ -29,7 +29,7 @@
         "version": ">=0.17.0"
       },
       {
-        "id": "quilted_fabric_api",
+        "id": "fabric_api",
         "version": "*"
       },
       {
