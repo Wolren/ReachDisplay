@@ -23,7 +23,7 @@
 - CI now builds each subproject separately (fail-fast disabled)
 - Release workflow builds all versions, collects JARs, creates GitHub Release with changelog
 - Changelog follows KeepAChangelog format for automated extraction
-- CI and release workflows now build all 5 subprojects (26.1.2 on JDK 25); CI triggers on `restructure`
+- CI and release workflows now build all 7 subprojects (26.1.2 on JDK 25); CI triggers on `restructure`
 
 ### Fixed
 
@@ -49,7 +49,7 @@
 
 - Config entries: `entityFilterEnable`, `entityFilterMode` (WHITELIST/BLACKLIST), per-category toggles, `entityFilterCustomIDs`
 - All 3 HUD display sections filtered with `!enable || shouldTrack(entity)`
-- Works across all 4 supported versions
+- Works across all 7 supported versions
 
 ### Build System
 
