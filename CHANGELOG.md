@@ -17,6 +17,11 @@
   `>=1.21.6 <=1.21.11` — the client API broke at 1.21.5 and 1.21.6)
 - Per-subproject `game_versions` publish matrix on Modrinth + CurseForge — no duplicate or
   over-claimed game versions (1.20.1 bounded to <=1.20.6, 26.1.2 bounded to <=26.1.2)
+- Quilt builds fixed: each subproject now applies quilt-loom 1.15.1 (`-PuseQuilt=true`) instead of
+  fabric-loom, which cannot remap quilted-fabric-api (no `quilt.mod.json` support); the quilt build
+  was broken since it was introduced. Mixin API pulled in explicitly (quilt-loader does not bundle
+  it). 26.1.2 quilt build uses fabric-api directly (no quilted-fabric-api for 26.x) and declares
+  `fabric_api` in quilt.mod.json. CI now builds both loaders for all 7 subprojects.
 
 ### Infrastructure
 

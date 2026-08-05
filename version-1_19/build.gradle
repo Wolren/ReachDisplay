@@ -1,8 +1,28 @@
-plugins {
-    id 'fabric-loom' version '1.17.17'
+buildscript {
+    repositories {
+        maven { url = 'https://maven.fabricmc.net/' }
+        maven { url = 'https://maven.quiltmc.org/repository/release/' }
+        gradlePluginPortal()
+    }
+    dependencies {
+        boolean useQuilt = project.hasProperty('useQuilt') ? project.useQuilt.toBoolean() : false
+        if (useQuilt) {
+            // Quilt Loom understands quilt.mod.json and remaps quilted-fabric-api
+            // (fabric-loom only remaps mods detected via fabric.mod.json)
+            classpath 'org.quiltmc:loom:1.15.1'
+        } else {
+            classpath 'net.fabricmc:fabric-loom:1.17.17'
+        }
+    }
 }
 
 boolean useQuilt = project.hasProperty('useQuilt') ? project.useQuilt.toBoolean() : false
+
+if (useQuilt) {
+    apply plugin: 'org.quiltmc.loom'
+} else {
+    apply plugin: 'fabric-loom'
+}
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -10,10 +30,9 @@ dependencies {
 
     if (useQuilt) {
         modImplementation "org.quiltmc:quilt-loader:${project.quilt_loader_version}"
-        modImplementation("org.quiltmc.quilted-fabric-api:quilted-fabric-api:${project.quilted_fabric_api_version}") {
-            exclude group: "net.fabricmc.fabric-api", module: "fabric-particles-v1"
-        }
-        // fabric-models-v0 is bundled in quilted-fabric-api
+        modImplementation "org.quiltmc.quilted-fabric-api:quilted-fabric-api:${project.quilted_fabric_api_version}"
+        // quilt-loader does not bundle the Mixin API; fabric-loader pulls it in transitively
+        modImplementation "net.fabricmc:sponge-mixin:${project.mixin_api_version}"
     } else {
         modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
         modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
