@@ -179,7 +179,7 @@ public abstract class InGameHudMixin {
     @Unique
     private int resolveDistanceColorInt(PlayerEntity player, double dist) {
         if (DisplayConfig.distanceGradientEnabled) {
-            float t = (float) (dist / ((player.isCreative() ? 2.0 : 0.0) + DisplayConfig.distanceGradientMax));
+            float t = (float) (dist / (player.isCreative() ? 5.0 : 3.0));
             if (t < 0) t = 0;
             if (t > 1) t = 1;
             return lerpColor(parseColorWithDefault(DisplayConfig.distanceGradientStartColor), parseColorWithDefault(DisplayConfig.distanceGradientEndColor), t);
@@ -198,7 +198,7 @@ public abstract class InGameHudMixin {
     private int resolveHitColorInt(double dist) {
         if (DisplayConfig.hitDistanceGradientEnabled) {
             PlayerEntity p = client.player;
-            float t = (float) (dist / ((p != null && p.isCreative() ? 2.0 : 0.0) + DisplayConfig.hitDistanceGradientMax));
+            float t = (float) (dist / (p != null && p.isCreative() ? 5.0 : 3.0));
             if (t < 0) t = 0;
             if (t > 1) t = 1;
             return lerpColor(parseColorWithDefault(DisplayConfig.hitDistanceGradientStartColor), parseColorWithDefault(DisplayConfig.hitDistanceGradientEndColor), t);
@@ -217,7 +217,7 @@ public abstract class InGameHudMixin {
     private int resolveAverageColorInt(double dist) {
         if (DisplayConfig.averageHitDistanceGradientEnabled) {
             PlayerEntity p = client.player;
-            float t = (float) (dist / ((p != null && p.isCreative() ? 2.0 : 0.0) + DisplayConfig.averageHitDistanceGradientMax));
+            float t = (float) (dist / (p != null && p.isCreative() ? 5.0 : 3.0));
             if (t < 0) t = 0;
             if (t > 1) t = 1;
             return lerpColor(parseColorWithDefault(DisplayConfig.averageHitDistanceGradientStartColor), parseColorWithDefault(DisplayConfig.averageHitDistanceGradientEndColor), t);
