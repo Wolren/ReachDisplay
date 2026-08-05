@@ -19,6 +19,10 @@ jobs:
             jdk: '21'
           - subproject: version-1_20_1
             jdk: '21'
+          - subproject: version-1_21_1
+            jdk: '21'
+          - subproject: version-1_21_5
+            jdk: '21'
           - subproject: version-1_21_11
             jdk: '21'
           - subproject: version-26_1_2

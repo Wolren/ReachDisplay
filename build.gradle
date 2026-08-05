@@ -70,7 +70,8 @@ subprojects {
             versionName = project.mod_version
             // Unobfuscated MC (26.1+) has no remapJar task — the plain jar is the release artifact.
             uploadFile = tasks.findByName("remapJar") ?: tasks.jar
-            gameVersions = [project.minecraft_version]
+            // Per-subproject game version list (gradle.properties: game_versions=a,b,c)
+            gameVersions = project.hasProperty("game_versions") ? project.game_versions.split(",") : [project.minecraft_version]
             loaders = ["fabric"]
             changelog = rootProject.file("CHANGELOG.md").text
         }

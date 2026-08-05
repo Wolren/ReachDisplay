@@ -12,6 +12,11 @@
 - Shadow toggle and shadow color options on 1.18.2 and 1.19.4 (were always-on black shadows)
 - Hit/average display mode (number / blocks / M) now applies on 1.20.1
 - 26.1.2 build: MC 26.1+ ships unobfuscated, so the subproject uses the no-remap loom plugin without a mappings line
+- Full 1.21.x coverage: new `version-1_21_1` (1.21.1-1.21.4) and `version-1_21_5` (1.21.5) subprojects;
+  1.21.x jars now declare exact supported game version ranges (`>=1.21.1 <=1.21.4` / `>=1.21.5 <=1.21.5` /
+  `>=1.21.6 <=1.21.11` — the client API broke at 1.21.5 and 1.21.6)
+- Per-subproject `game_versions` publish matrix on Modrinth + CurseForge — no duplicate or
+  over-claimed game versions (1.20.1 bounded to <=1.20.6, 26.1.2 bounded to <=26.1.2)
 
 ### Infrastructure
 

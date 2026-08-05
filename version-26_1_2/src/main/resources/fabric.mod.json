@@ -27,7 +27,7 @@
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric": "*",
-    "minecraft": ">=26.1",
+    "minecraft": ">=26.1 <=26.1.2",
     "midnightlib": ">=1.9.3-fabric"
   }
 }
