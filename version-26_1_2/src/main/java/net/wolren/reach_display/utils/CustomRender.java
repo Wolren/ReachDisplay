@@ -113,7 +113,7 @@ public class CustomRender {
 
     public static int resolveDistanceColorInt(boolean creative, double dist) {
         if (DisplayConfig.distanceGradientEnabled) {
-            float maxDist = (creative ? 2.0f : 0.0f) + DisplayConfig.distanceGradientMax;
+            float maxDist = creative ? 5.0f : 3.0f;
             float t = (float) (dist / maxDist);
             if (t < 0) t = 0;
             if (t > 1) t = 1;
@@ -131,7 +131,7 @@ public class CustomRender {
 
     public static int resolveHitColorInt(boolean creative, double dist) {
         if (DisplayConfig.hitDistanceGradientEnabled) {
-            float maxDist = (creative ? 2.0f : 0.0f) + DisplayConfig.hitDistanceGradientMax;
+            float maxDist = creative ? 5.0f : 3.0f;
             float t = (float) (dist / maxDist);
             if (t < 0) t = 0;
             if (t > 1) t = 1;
@@ -149,7 +149,7 @@ public class CustomRender {
 
     public static int resolveAverageColorInt(boolean creative, double dist) {
         if (DisplayConfig.averageHitDistanceGradientEnabled) {
-            float maxDist = (creative ? 2.0f : 0.0f) + DisplayConfig.averageHitDistanceGradientMax;
+            float maxDist = creative ? 5.0f : 3.0f;
             float t = (float) (dist / maxDist);
             if (t < 0) t = 0;
             if (t > 1) t = 1;

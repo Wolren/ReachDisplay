@@ -73,8 +73,6 @@ public class DisplayConfig extends MidnightConfig {
     public static String distanceGradientStartColor = "#00FF00";
     @Entry(name = "Distance Gradient End Color", isColor = true)
     public static String distanceGradientEndColor = "#FF0000";
-    @Entry(name = "Distance Gradient Max", isSlider = true, min = 0.1f, max = 10.0f, precision = 10)
-    public static float distanceGradientMax = 3.0f;
     @Entry(name = "Distance Background")
     public static boolean distanceBackground = false;
     @Entry(name = "Distance Background Color", isColor = true)
@@ -135,8 +133,6 @@ public class DisplayConfig extends MidnightConfig {
     public static String hitDistanceGradientStartColor = "#00FF00";
     @Entry(name = "Hit Gradient End Color", isColor = true)
     public static String hitDistanceGradientEndColor = "#FF0000";
-    @Entry(name = "Hit Gradient Max", isSlider = true, min = 0.1f, max = 10.0f, precision = 10)
-    public static float hitDistanceGradientMax = 3.0f;
     @Entry(name = "Hit Background")
     public static boolean hitDistanceBackground = false;
     @Entry(name = "Hit Background Color", isColor = true)
@@ -197,8 +193,6 @@ public class DisplayConfig extends MidnightConfig {
     public static String averageHitDistanceGradientStartColor = "#00FF00";
     @Entry(name = "Average Hit Gradient End Color", isColor = true)
     public static String averageHitDistanceGradientEndColor = "#FF0000";
-    @Entry(name = "Average Hit Gradient Max", isSlider = true, min = 0.1f, max = 10.0f, precision = 10)
-    public static float averageHitDistanceGradientMax = 3.0f;
     @Entry(name = "Average Hit Background")
     public static boolean averageHitDistanceBackground = false;
     @Entry(name = "Average Hit Background Color", isColor = true)

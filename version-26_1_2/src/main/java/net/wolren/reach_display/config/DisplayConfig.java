@@ -97,8 +97,6 @@ public class DisplayConfig extends MidnightConfig {
     public static String distanceGradientStartColor = "#00FF00";
     @Entry(category = "distance", name = "Distance Gradient End Color", isColor = true)
     public static String distanceGradientEndColor = "#FF0000";
-    @Entry(category = "distance", name = "Distance Gradient Max", isSlider = true, min = 0.1f, max = 10.0f, precision = 10)
-    public static float distanceGradientMax = 3.0f;
     @Entry(category = "distance", name = "Distance Background")
     public static boolean distanceBackground = false;
     @Entry(category = "distance", name = "Distance Background Color", isColor = true)
@@ -157,8 +155,6 @@ public class DisplayConfig extends MidnightConfig {
     public static String hitDistanceGradientStartColor = "#00FF00";
     @Entry(category = "3hitDistance", name = "Hit Gradient End Color", isColor = true)
     public static String hitDistanceGradientEndColor = "#FF0000";
-    @Entry(category = "3hitDistance", name = "Hit Gradient Max", isSlider = true, min = 0.1f, max = 10.0f, precision = 10)
-    public static float hitDistanceGradientMax = 3.0f;
     @Entry(category = "3hitDistance", name = "Hit Background")
     public static boolean hitDistanceBackground = false;
     @Entry(category = "3hitDistance", name = "Hit Background Color", isColor = true)
@@ -217,8 +213,6 @@ public class DisplayConfig extends MidnightConfig {
     public static String averageHitDistanceGradientStartColor = "#00FF00";
     @Entry(category = "averageHitDistance", name = "Average Hit Gradient End Color", isColor = true)
     public static String averageHitDistanceGradientEndColor = "#FF0000";
-    @Entry(category = "averageHitDistance", name = "Average Hit Gradient Max", isSlider = true, min = 0.1f, max = 10.0f, precision = 10)
-    public static float averageHitDistanceGradientMax = 3.0f;
     @Entry(category = "averageHitDistance", name = "Average Hit Background")
     public static boolean averageHitDistanceBackground = false;
     @Entry(category = "averageHitDistance", name = "Average Hit Background Color", isColor = true)

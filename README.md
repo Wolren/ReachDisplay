@@ -85,7 +85,7 @@ Open the config screen through Mod Menu, or edit `config/reach_display.json`. Al
 - Display mode: number only, with blocks, with meters
 - Distance calculation method: ray hit point or closest point
 - Color bands with per-band thresholds and colors
-- Color gradient between start and end colors, with a configurable max distance (defaults to the 3 block reach, 5 in creative)
+- Color gradient between start and end colors
 - Background with configurable color and opacity
 - Smooth interpolation and update rate (distance display)
 
