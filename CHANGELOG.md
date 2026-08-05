@@ -6,15 +6,26 @@
 
 - MixinExtras 0.5.4 dependency (self-contained via `include`)
 - .editorconfig for consistent code style
-- CI matrix build — all 4 subprojects built in parallel
-- Automated release workflow triggered by version tags
 - Dependabot tracking for GitHub Actions updates
+- MC 26.1.2 support restored as `version-26_1_2` (v3.0.0 feature set, version `3.0.0-26.1.2`)
+- Weapons display: spear (stab) hits are tracked and shown on the hit/average displays on 26.1.2
+- Shadow toggle and shadow color options on 1.18.2 and 1.19.4 (were always-on black shadows)
+- Hit/average display mode (number / blocks / M) now applies on 1.20.1
+- 26.1.2 build: MC 26.1+ ships unobfuscated, so the subproject uses the no-remap loom plugin without a mappings line
 
 ### Infrastructure
 
 - CI now builds each subproject separately (fail-fast disabled)
 - Release workflow builds all versions, collects JARs, creates GitHub Release with changelog
 - Changelog follows KeepAChangelog format for automated extraction
+- CI and release workflows now build all 5 subprojects (26.1.2 on JDK 25); CI triggers on `restructure`
+
+### Fixed
+
+- 26.1.2: ray-hit-point distance no longer records hits against the wrong entity when the crosshair target differs from the attacked entity
+- 26.1.2: `fabric.mod.json` depended on the non-existent `fabric-api` mod id instead of `fabric`
+- All subprojects: `quilt.mod.json` license metadata said GPL-3.0 while v3.0.0+ is All Rights Reserved
+- 26.1.2: hit distance no longer stays on screen forever — keep-last-distance and reset-time settings apply like on other versions
 
 ## 3.0.0 — Multi-Version Restructure + Entity Filter
 

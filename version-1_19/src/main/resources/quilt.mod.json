@@ -16,7 +16,7 @@
         "repo": "https://github.com/Wolren/ReachDisplay",
         "issues": "https://github.com/Wolren/ReachDisplay/issues"
       },
-      "license": "GPL-3.0",
+      "license": "ARR",
       "icon": "assets/reach_display/icon.png"
     },
     "intermediate_mappings": "net.fabricmc:intermediary",

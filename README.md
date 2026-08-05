@@ -72,8 +72,9 @@ Required dependencies:
 | 1.19.4 | 3.0.0-1.19.4 | Fabric |
 | 1.20.1 | 3.0.0-1.20.1 | Fabric |
 | 1.21.11 | 3.0.0-1.21.11 | Fabric |
+| 26.1.2 | 3.0.0-26.1.2 | Fabric |
 
-Requires Java 21. Client-side mod; no server-side installation needed.
+Requires Java 21 (1.18.2-1.21.11) or Java 25 (26.1.2). Client-side mod; no server-side installation needed.
 
 ## Configuration
 
@@ -84,7 +85,7 @@ Open the config screen through Mod Menu, or edit `config/reach_display.json`. Al
 - Display mode: number only, with blocks, with meters
 - Distance calculation method: ray hit point or closest point
 - Color bands with per-band thresholds and colors
-- Color gradient between start and end colors
+- Color gradient between start and end colors, with a configurable max distance (defaults to the 3 block reach, 5 in creative)
 - Background with configurable color and opacity
 - Smooth interpolation and update rate (distance display)
 

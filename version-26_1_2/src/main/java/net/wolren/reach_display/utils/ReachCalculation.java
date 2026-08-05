@@ -8,17 +8,38 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.wolren.reach_display.config.DisplayConfig;
-
-import static net.wolren.reach_display.config.DisplayConfig.DistanceCalculationMethod.RAY_HIT_POINT;
+import net.wolren.reach_display.data.SharedData;
 
 public class ReachCalculation {
+    /**
+     * Measures the reach to {@code target} using the configured method and
+     * records the hit (last distance, target, average, timestamp) when the
+     * measurement is valid.
+     */
+    public static void recordHit(Player player, Entity target) {
+        double reach = measureReach(player, target);
+        if (reach == -1) return;
+
+        SharedData data = SharedData.getInstance();
+        data.setDistanceAndTarget(reach, target);
+        data.addDistanceToAverage(reach);
+        data.setLastHitTimestamp(System.currentTimeMillis());
+    }
+
+    /**
+     * Measures the reach to {@code target} using the configured method.
+     * In RAY_HIT_POINT mode the current crosshair hit must actually be on
+     * {@code target} — otherwise the distance belongs to a different entity
+     * and -1 is returned so the caller can skip the hit.
+     */
     public static double measureReach(Player player, Entity target) {
         Minecraft client = Minecraft.getInstance();
-        HitResult result = client.hitResult;
         Vec3 eyePos = player.getEyePosition();
 
-        if (DisplayConfig.distanceCalculationMethod == RAY_HIT_POINT) {
+        if (DisplayConfig.hitDistanceCalculationMethod == DisplayConfig.DistanceCalculationMethod.RAY_HIT_POINT) {
+            HitResult result = client.hitResult;
             if (!(result instanceof EntityHitResult hitResult)) return -1;
+            if (hitResult.getEntity() != target) return -1;
             return eyePos.distanceTo(hitResult.getLocation());
         }
 

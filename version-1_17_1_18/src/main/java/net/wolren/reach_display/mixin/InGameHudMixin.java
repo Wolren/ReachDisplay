@@ -126,11 +126,13 @@ public abstract class InGameHudMixin {
                 int colorInt = resolveDistanceColorInt(player, dist);
                 float opacityScale = DisplayConfig.distanceOpacity;
                 int ARGBColorInt = parseARGBColorWithOpacity(opacityScale, colorInt);
+                boolean shadow = DisplayConfig.distanceShadow;
                 boolean distanceBackground = DisplayConfig.distanceBackground;
                 int distanceBgColor = DisplayConfig.distanceBackground ? parseARGBColorWithOpacity(DisplayConfig.distanceBackgroundOpacity, parseColorWithDefault(DisplayConfig.distanceBackgroundColor)) : 0;
+                int shadowColor = DisplayConfig.distanceShadow ? parseARGBColorWithOpacity(1.0f, parseColorWithDefault(DisplayConfig.distanceShadowColor)) : 0;
                 float scale = DisplayConfig.distanceScale;
 
-                renderText(matrices, displayString, getDistance(displayString).x, getDistance(displayString).y, ARGBColorInt, scale, distanceBackground, distanceBgColor);
+                renderText(matrices, displayString, getDistance(displayString).x, getDistance(displayString).y, ARGBColorInt, shadow, scale, distanceBackground, distanceBgColor, shadowColor);
             }
         }
 
@@ -144,11 +146,13 @@ public abstract class InGameHudMixin {
                 int colorInt = resolveHitColorInt(hitDist);
                 float opacityScale = DisplayConfig.hitDistanceOpacity;
                 int ARGBColorInt = parseARGBColorWithOpacity(opacityScale, colorInt);
+                boolean shadow = DisplayConfig.hitDistanceShadow;
                 boolean hitBackground = DisplayConfig.hitDistanceBackground;
                 int hitBgColor = DisplayConfig.hitDistanceBackground ? parseARGBColorWithOpacity(DisplayConfig.hitDistanceBackgroundOpacity, parseColorWithDefault(DisplayConfig.hitDistanceBackgroundColor)) : 0;
+                int shadowColor = DisplayConfig.hitDistanceShadow ? parseARGBColorWithOpacity(1.0f, parseColorWithDefault(DisplayConfig.hitDistanceShadowColor)) : 0;
                 float scale = DisplayConfig.hitDistanceScale;
 
-                renderText(matrices, displayString, getHitDistance(displayString).x, getHitDistance(displayString).y, ARGBColorInt, scale, hitBackground, hitBgColor);
+                renderText(matrices, displayString, getHitDistance(displayString).x, getHitDistance(displayString).y, ARGBColorInt, shadow, scale, hitBackground, hitBgColor, shadowColor);
             }
         }
 
@@ -162,11 +166,13 @@ public abstract class InGameHudMixin {
                 int colorInt = resolveAverageColorInt(avgDist);
                 float opacityScale = DisplayConfig.averageHitDistanceOpacity;
                 int ARGBColorInt = parseARGBColorWithOpacity(opacityScale, colorInt);
+                boolean shadow = DisplayConfig.averageHitDistanceShadow;
                 boolean avgBackground = DisplayConfig.averageHitDistanceBackground;
                 int avgBgColor = DisplayConfig.averageHitDistanceBackground ? parseARGBColorWithOpacity(DisplayConfig.averageHitDistanceBackgroundOpacity, parseColorWithDefault(DisplayConfig.averageHitDistanceBackgroundColor)) : 0;
+                int shadowColor = DisplayConfig.averageHitDistanceShadow ? parseARGBColorWithOpacity(1.0f, parseColorWithDefault(DisplayConfig.averageHitDistanceShadowColor)) : 0;
                 float scale = DisplayConfig.averageHitDistanceScale;
 
-                renderText(matrices, displayString, getAverageHitDistance(displayString).x, getAverageHitDistance(displayString).y, ARGBColorInt, scale, avgBackground, avgBgColor);
+                renderText(matrices, displayString, getAverageHitDistance(displayString).x, getAverageHitDistance(displayString).y, ARGBColorInt, shadow, scale, avgBackground, avgBgColor, shadowColor);
             }
         }
 
@@ -176,7 +182,7 @@ public abstract class InGameHudMixin {
     @Unique
     private int resolveDistanceColorInt(PlayerEntity player, double dist) {
         if (DisplayConfig.distanceGradientEnabled) {
-            float maxDist = player.isCreative() ? 5.0f : 3.0f;
+            float maxDist = (player.isCreative() ? 2.0f : 0.0f) + DisplayConfig.distanceGradientMax;
             float t = (float) (dist / maxDist);
             if (t < 0) t = 0;
             if (t > 1) t = 1;
@@ -196,7 +202,7 @@ public abstract class InGameHudMixin {
     private int resolveHitColorInt(double dist) {
         if (DisplayConfig.hitDistanceGradientEnabled) {
             PlayerEntity p = client.player;
-            float maxDist = (p != null && p.isCreative()) ? 5.0f : 3.0f;
+            float maxDist = ((p != null && p.isCreative()) ? 2.0f : 0.0f) + DisplayConfig.hitDistanceGradientMax;
             float t = (float) (dist / maxDist);
             if (t < 0) t = 0;
             if (t > 1) t = 1;
@@ -216,7 +222,7 @@ public abstract class InGameHudMixin {
     private int resolveAverageColorInt(double dist) {
         if (DisplayConfig.averageHitDistanceGradientEnabled) {
             PlayerEntity p = client.player;
-            float maxDist = (p != null && p.isCreative()) ? 5.0f : 3.0f;
+            float maxDist = ((p != null && p.isCreative()) ? 2.0f : 0.0f) + DisplayConfig.averageHitDistanceGradientMax;
             float t = (float) (dist / maxDist);
             if (t < 0) t = 0;
             if (t > 1) t = 1;
@@ -284,7 +290,7 @@ public abstract class InGameHudMixin {
     }
 
     @Unique
-    private void renderText(MatrixStack matrices, String text, float x, float y, int color, float scale, boolean drawBackground, int bgColor) {
+    private void renderText(MatrixStack matrices, String text, float x, float y, int color, boolean shadow, float scale, boolean drawBackground, int bgColor, int shadowColor) {
         matrices.scale(scale, scale, scale);
         TextRenderer renderer = this.getTextRenderer();
         int drawX = (int) (x * (1 / scale));
@@ -295,7 +301,10 @@ public abstract class InGameHudMixin {
             DrawableHelper.fill(matrices, drawX - 2, drawY - 2, drawX + textWidth + 2, drawY + renderer.fontHeight + 2, bgColor);
         }
 
-        renderer.drawWithShadow(matrices, text, drawX, drawY, color);
+        if (shadow) {
+            renderer.draw(matrices, text, drawX + 1, drawY + 1, shadowColor);
+        }
+        renderer.draw(matrices, text, drawX, drawY, color);
         matrices.scale((1 / scale), (1 / scale), (1 / scale));
     }
 
