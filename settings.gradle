@@ -17,5 +17,7 @@ rootProject.name = 'ReachDisplay'
 include 'version-1_17_1_18'
 include 'version-1_19'
 include 'version-1_20_1'
+include 'version-1_21_1'
+include 'version-1_21_5'
 include 'version-1_21_11'
 include 'version-26_1_2' // MC 26.1+ is unobfuscated — no mappings required

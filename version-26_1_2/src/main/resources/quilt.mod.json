@@ -34,7 +34,7 @@
       },
       {
         "id": "minecraft",
-        "version": ">=26.1"
+        "version": ">=26.1 <=26.1.2"
       },
       {
         "id": "midnightlib",

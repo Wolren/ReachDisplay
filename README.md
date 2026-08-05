@@ -71,10 +71,18 @@ Required dependencies:
 | 1.18.2 | 3.0.0-1.18.2 | Fabric |
 | 1.19.4 | 3.0.0-1.19.4 | Fabric |
 | 1.20.1 | 3.0.0-1.20.1 | Fabric |
-| 1.21.11 | 3.0.0-1.21.11 | Fabric |
-| 26.1.2 | 3.0.0-26.1.2 | Fabric |
+| 1.21.1 – 1.21.4 | 3.0.0-1.21.1 | Fabric |
+| 1.21.5 | 3.0.0-1.21.5 | Fabric |
+| 1.21.6 – 1.21.11 | 3.0.0-1.21.11 | Fabric |
+| 26.1 – 26.1.2 | 3.0.0-26.1.2 | Fabric |
 
 Requires Java 21 (1.18.2-1.21.11) or Java 25 (26.1.2). Client-side mod; no server-side installation needed.
+
+The 1.21 line is split into three builds because the Minecraft client API changed
+incompatibly inside it: `PlayerEntity.isCreative` was remapped at 1.21.5 and the
+`DrawContext` matrix API switched from `MatrixStack` to `Matrix3x2fStack` at 1.21.6.
+Each build declares exactly the game versions it runs on, on both Modrinth and
+CurseForge — no overlaps, no duplicates.
 
 ## Configuration
 
