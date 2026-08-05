@@ -27,6 +27,12 @@ public class DisplayConfig extends MidnightConfig {
     @Entry(name = "Distance Opacity", isSlider = true, min = 0.0f, max = 1.0f)
     public static float distanceOpacity = 1.0f;
 
+    @Entry(name = "Distance Text Shadow")
+    public static boolean distanceShadow = true;
+
+    @Entry(name = "Distance Shadow Color", isColor = true)
+    public static String distanceShadowColor = "#000000";
+
     @Entry(name = "Distance Decimal Places")
     public static int distanceDecimalPlaces = 2;
 
@@ -67,6 +73,8 @@ public class DisplayConfig extends MidnightConfig {
     public static String distanceGradientStartColor = "#00FF00";
     @Entry(name = "Distance Gradient End Color", isColor = true)
     public static String distanceGradientEndColor = "#FF0000";
+    @Entry(name = "Distance Gradient Max", isSlider = true, min = 0.1f, max = 10.0f, precision = 10)
+    public static float distanceGradientMax = 3.0f;
     @Entry(name = "Distance Background")
     public static boolean distanceBackground = false;
     @Entry(name = "Distance Background Color", isColor = true)
@@ -87,6 +95,12 @@ public class DisplayConfig extends MidnightConfig {
     public static String hitDistanceColor = "#FFAA00";
     @Entry(name = "Hit Distance Opacity", isSlider = true, min = 0.0f, max = 1.0f)
     public static float hitDistanceOpacity = 1.0f;
+
+    @Entry(name = "Hit Distance Text Shadow")
+    public static boolean hitDistanceShadow = true;
+
+    @Entry(name = "Hit Distance Shadow Color", isColor = true)
+    public static String hitDistanceShadowColor = "#000000";
     @Entry(name = "Hit Distance Decimal Places")
     public static int hitDistanceDecimalPlaces = 2;
     @Entry(name = "Hit Bold")
@@ -121,6 +135,8 @@ public class DisplayConfig extends MidnightConfig {
     public static String hitDistanceGradientStartColor = "#00FF00";
     @Entry(name = "Hit Gradient End Color", isColor = true)
     public static String hitDistanceGradientEndColor = "#FF0000";
+    @Entry(name = "Hit Gradient Max", isSlider = true, min = 0.1f, max = 10.0f, precision = 10)
+    public static float hitDistanceGradientMax = 3.0f;
     @Entry(name = "Hit Background")
     public static boolean hitDistanceBackground = false;
     @Entry(name = "Hit Background Color", isColor = true)
@@ -147,6 +163,12 @@ public class DisplayConfig extends MidnightConfig {
     public static String averageHitDistanceColor = "#00FFFF";
     @Entry(name = "Average Hit Distance Opacity", isSlider = true, min = 0.0f, max = 1.0f)
     public static float averageHitDistanceOpacity = 1.0f;
+
+    @Entry(name = "Average Hit Distance Text Shadow")
+    public static boolean averageHitDistanceShadow = true;
+
+    @Entry(name = "Average Hit Distance Shadow Color", isColor = true)
+    public static String averageHitDistanceShadowColor = "#000000";
     @Entry(name = "Average Hit Distance Decimal Places")
     public static int averageHitDistanceDecimalPlaces = 2;
     @Entry(name = "Average Hit Bold")
@@ -175,6 +197,8 @@ public class DisplayConfig extends MidnightConfig {
     public static String averageHitDistanceGradientStartColor = "#00FF00";
     @Entry(name = "Average Hit Gradient End Color", isColor = true)
     public static String averageHitDistanceGradientEndColor = "#FF0000";
+    @Entry(name = "Average Hit Gradient Max", isSlider = true, min = 0.1f, max = 10.0f, precision = 10)
+    public static float averageHitDistanceGradientMax = 3.0f;
     @Entry(name = "Average Hit Background")
     public static boolean averageHitDistanceBackground = false;
     @Entry(name = "Average Hit Background Color", isColor = true)

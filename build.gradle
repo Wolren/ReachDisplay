@@ -68,7 +68,8 @@ subprojects {
             projectId = "reach-display"
             versionNumber = project.mod_version
             versionName = project.mod_version
-            uploadFile = tasks.remapJar
+            // Unobfuscated MC (26.1+) has no remapJar task — the plain jar is the release artifact.
+            uploadFile = tasks.findByName("remapJar") ?: tasks.jar
             gameVersions = [project.minecraft_version]
             loaders = ["fabric"]
             changelog = rootProject.file("CHANGELOG.md").text

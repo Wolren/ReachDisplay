@@ -4,13 +4,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.wolren.reach_display.config.DisplayConfig;
-import net.wolren.reach_display.data.SharedData;
+import net.wolren.reach_display.filter.EntityFilterHelper;
+import net.wolren.reach_display.utils.ReachCalculation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import static net.wolren.reach_display.utils.ReachCalculation.measureReach;
 
 @Mixin(Player.class)
 public abstract class SpearAttackMixin {
@@ -18,13 +17,8 @@ public abstract class SpearAttackMixin {
     private void onStabAttack(EquipmentSlot slot, Entity target, float baseDamage, boolean dealsDamage, boolean dealsKnockback, boolean dismounts, CallbackInfoReturnable<Boolean> cir) {
         if (!DisplayConfig.enabled || target == null) return;
         Player player = (Player) (Object) this;
-        if (DisplayConfig.showPlayersOnly && !(target instanceof Player)) return;
+        if (DisplayConfig.entityFilterEnable && !EntityFilterHelper.shouldTrack(target)) return;
 
-        double reach = measureReach(player, target);
-        if (reach == -1) return;
-
-        SharedData data = SharedData.getInstance();
-        data.setDistanceAndTarget(reach, target);
-        data.addDistanceToAverage(reach);
+        ReachCalculation.recordHit(player, target);
     }
 }

@@ -177,7 +177,7 @@ public abstract class InGameHudMixin {
 
     @Unique
     private int resolveDistanceColorInt(PlayerEntity player, double dist) {
-        double maxDist = player.isCreative() ? 5.0 : 3.0;
+        double maxDist = (player.isCreative() ? 2.0 : 0.0) + DisplayConfig.distanceGradientMax;
         if (DisplayConfig.distanceGradientEnabled) {
             float t = (float) (dist / maxDist);
             if (t < 0) t = 0;
@@ -198,7 +198,7 @@ public abstract class InGameHudMixin {
     private int resolveHitColorInt(double dist) {
         if (DisplayConfig.hitDistanceGradientEnabled) {
             PlayerEntity p = client.player;
-            double maxDist = (p != null && p.isCreative()) ? 5.0 : 3.0;
+            double maxDist = ((p != null && p.isCreative()) ? 2.0 : 0.0) + DisplayConfig.hitDistanceGradientMax;
             float t = (float) (dist / maxDist);
             if (t < 0) t = 0;
             if (t > 1) t = 1;
@@ -218,7 +218,7 @@ public abstract class InGameHudMixin {
     private int resolveAverageColorInt(double dist) {
         if (DisplayConfig.averageHitDistanceGradientEnabled) {
             PlayerEntity p = client.player;
-            double maxDist = (p != null && p.isCreative()) ? 5.0 : 3.0;
+            double maxDist = ((p != null && p.isCreative()) ? 2.0 : 0.0) + DisplayConfig.averageHitDistanceGradientMax;
             float t = (float) (dist / maxDist);
             if (t < 0) t = 0;
             if (t > 1) t = 1;
@@ -240,7 +240,7 @@ public abstract class InGameHudMixin {
 
         DecimalFormat df = new DecimalFormat("0." + "0".repeat(decimalPlaces));
 
-        return applyFontStyle(df.format(distance), DisplayConfig.averageHitDistanceBold, DisplayConfig.averageHitDistanceItalic, DisplayConfig.averageHitDistanceUnderline);
+        return applyFontStyle(applyDisplayFormat(df.format(distance), DisplayConfig.averageHitDistanceDisplayMode), DisplayConfig.averageHitDistanceBold, DisplayConfig.averageHitDistanceItalic, DisplayConfig.averageHitDistanceUnderline);
     }
 
     @Unique
@@ -249,7 +249,7 @@ public abstract class InGameHudMixin {
 
         DecimalFormat df = new DecimalFormat("0." + "0".repeat(decimalPlaces));
 
-        return applyFontStyle(df.format(distance), DisplayConfig.hitDistanceBold, DisplayConfig.hitDistanceItalic, DisplayConfig.hitDistanceUnderline);
+        return applyFontStyle(applyDisplayFormat(df.format(distance), DisplayConfig.hitDistanceDisplayMode), DisplayConfig.hitDistanceBold, DisplayConfig.hitDistanceItalic, DisplayConfig.hitDistanceUnderline);
     }
 
     @Unique

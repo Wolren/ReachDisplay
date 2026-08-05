@@ -1,24 +1,24 @@
 plugins {
-    id 'fabric-loom' version '1.17.17'
+    id 'net.fabricmc.fabric-loom' version '1.17.17'
 }
 
 boolean useQuilt = project.hasProperty('useQuilt') ? project.useQuilt.toBoolean() : false
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.officialMojangMappings()
+    // MC 26.1+ ships unobfuscated: no mappings line, no remap configurations.
 
     if (useQuilt) {
-        modImplementation "org.quiltmc:quilt-loader:${project.quilt_loader_version}"
-        modImplementation "org.quiltmc.quilted-fabric-api:quilted-fabric-api:${project.quilted_fabric_api_version}"
+        implementation "org.quiltmc:quilt-loader:${project.quilt_loader_version}"
+        implementation "org.quiltmc.quilted-fabric-api:quilted-fabric-api:${project.quilted_fabric_api_version}"
     } else {
-        modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-        modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+        implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+        implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     }
 
-    modImplementation "maven.modrinth:midnightlib:${project.midnightlib_version}"
+    implementation "maven.modrinth:midnightlib:${project.midnightlib_version}"
 
-    include modImplementation("io.github.llamalad7:mixinextras-fabric:${project.mixinextras_version}")
+    include implementation("io.github.llamalad7:mixinextras-fabric:${project.mixinextras_version}")
 }
 
 java {

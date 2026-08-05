@@ -180,7 +180,7 @@ public abstract class InGameHudMixin {
     @Unique
     private int resolveDistanceColorInt(PlayerEntity player, double dist) {
         if (DisplayConfig.distanceGradientEnabled) {
-            float maxDist = player.isCreative() ? 5.0f : 3.0f;
+            float maxDist = (player.isCreative() ? 2.0f : 0.0f) + DisplayConfig.distanceGradientMax;
             float t = (float) (dist / maxDist);
             if (t < 0) t = 0;
             if (t > 1) t = 1;
@@ -200,7 +200,7 @@ public abstract class InGameHudMixin {
     private int resolveHitColorInt(double dist) {
         if (DisplayConfig.hitDistanceGradientEnabled) {
             PlayerEntity p = client.player;
-            float maxDist = (p != null && p.isCreative()) ? 5.0f : 3.0f;
+            float maxDist = ((p != null && p.isCreative()) ? 2.0f : 0.0f) + DisplayConfig.hitDistanceGradientMax;
             float t = (float) (dist / maxDist);
             if (t < 0) t = 0;
             if (t > 1) t = 1;
@@ -220,7 +220,7 @@ public abstract class InGameHudMixin {
     private int resolveAverageColorInt(double dist) {
         if (DisplayConfig.averageHitDistanceGradientEnabled) {
             PlayerEntity p = client.player;
-            float maxDist = (p != null && p.isCreative()) ? 5.0f : 3.0f;
+            float maxDist = ((p != null && p.isCreative()) ? 2.0f : 0.0f) + DisplayConfig.averageHitDistanceGradientMax;
             float t = (float) (dist / maxDist);
             if (t < 0) t = 0;
             if (t > 1) t = 1;

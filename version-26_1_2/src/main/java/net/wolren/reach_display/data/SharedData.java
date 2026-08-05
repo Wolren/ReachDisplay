@@ -19,31 +19,14 @@ public class SharedData {
     private double distance;
     private Entity entity;
     private PrintWriter writer;
-    private double globalAverageSum = 0;
-    private int globalAverageCount = 0;
+    private double globalSum = 0;
+    private int globalCount = 0;
+    private boolean globalCacheLoaded = false;
+    private long lastHitTimestamp = 0;
 
     private SharedData() {
         Path configDir = FabricLoader.getInstance().getConfigDir();
         File globalAverageFile = configDir.resolve(GLOBAL_AVERAGE_FILE_NAME).toFile();
-
-        if (globalAverageFile.exists()) {
-            try (BufferedReader reader = new BufferedReader(new FileReader(globalAverageFile))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    for (String s : line.split(",")) {
-                        String trimmed = s.trim();
-                        if (trimmed.isEmpty()) continue;
-                        try {
-                            globalAverageSum += Double.parseDouble(trimmed);
-                            globalAverageCount++;
-                        } catch (NumberFormatException ignored) {
-                        }
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         try {
             writer = new PrintWriter(new FileWriter(globalAverageFile, true));
         } catch (IOException e) {
@@ -52,7 +35,9 @@ public class SharedData {
     }
 
     public static SharedData getInstance() {
-        if (instance == null) instance = new SharedData();
+        if (instance == null) {
+            instance = new SharedData();
+        }
         return instance;
     }
 
@@ -69,24 +54,51 @@ public class SharedData {
                 averageDistance = localAverageDistance / localAverageHitCount;
             }
             case GLOBAL_AVERAGE -> {
-                if (writer != null) {
-                    writer.append(Double.toString(distance)).append(", ");
-                    writer.flush();
+                if (!globalCacheLoaded) {
+                    Path configDir = FabricLoader.getInstance().getConfigDir();
+                    File globalAverageFile = configDir.resolve(GLOBAL_AVERAGE_FILE_NAME).toFile();
+                    if (globalAverageFile.exists()) {
+                        try (BufferedReader reader = new BufferedReader(new FileReader(globalAverageFile))) {
+                            String line;
+                            while ((line = reader.readLine()) != null) {
+                                String[] distances = line.split(", ");
+                                for (String distanceStr : distances) {
+                                    if (!distanceStr.trim().isEmpty()) {
+                                        globalSum += Double.parseDouble(distanceStr);
+                                        globalCount++;
+                                    }
+                                }
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    globalCacheLoaded = true;
                 }
-                globalAverageSum += distance;
-                globalAverageCount++;
-                averageDistance = globalAverageCount > 0 ? globalAverageSum / globalAverageCount : 0;
+
+                writer.append(Double.toString(distance)).append(", ");
+                writer.flush();
+
+                globalSum += distance;
+                globalCount++;
+                averageDistance = globalSum / globalCount;
             }
             case LAST_HITS -> {
-                lastHitsDistance.add(distance);
-                while (lastHitsDistance.size() > DisplayConfig.averageNumberOfHitsCounted) lastHitsDistance.poll();
+                this.lastHitsDistance.add(distance);
+                while (this.lastHitsDistance.size() > DisplayConfig.averageNumberOfHitsCounted) {
+                    this.lastHitsDistance.poll();
+                }
                 averageDistance = calculateAverageLastHitsDistance();
             }
         }
     }
 
-    public void close() {
-        if (writer != null) writer.close();
+    private double calculateAverageLastHitsDistance() {
+        double sum = 0;
+        for (double distance : lastHitsDistance) {
+            sum += distance;
+        }
+        return sum / lastHitsDistance.size();
     }
 
     public double getAverageDistance() {
@@ -101,9 +113,22 @@ public class SharedData {
         return entity;
     }
 
-    private double calculateAverageLastHitsDistance() {
-        double sum = 0;
-        for (double d : lastHitsDistance) sum += d;
-        return sum / lastHitsDistance.size();
+    public void close() {
+        if (writer != null) {
+            writer.close();
+        }
+    }
+
+    public long getLastHitTimestamp() {
+        return lastHitTimestamp;
+    }
+
+    public void setLastHitTimestamp(long timestamp) {
+        this.lastHitTimestamp = timestamp;
+    }
+
+    public boolean isLastHitExpired(long timeoutMs) {
+        if (lastHitTimestamp == 0) return true;
+        return System.currentTimeMillis() - lastHitTimestamp > timeoutMs;
     }
 }
