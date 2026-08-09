@@ -21,8 +21,9 @@
   `>=1.21.6 <=1.21.11` — the client API broke at 1.21.5 and 1.21.6)
 - Per-subproject `game_versions` publish matrix on Modrinth + CurseForge — no duplicate or
   over-claimed game versions (1.20.1 bounded to <=1.20.6, 26.1.2 bounded to <=26.1.2)
-- Publish dependency metadata: Modrinth + CurseForge now declare fabric-api and midnightlib as
-  required, modmenu as optional — launchers auto-install them for players
+- Publish dependency metadata: Modrinth now declares fabric-api and midnightlib as
+  required, modmenu as optional — launchers auto-install them for players (backfilled onto
+  the v3.0.0 and shipped with all 3.1.0 versions)
 - Quilt builds fixed: each subproject now applies quilt-loom 1.15.1 (`-PuseQuilt=true`) instead of
   fabric-loom, which cannot remap quilted-fabric-api (no `quilt.mod.json` support); the quilt build
   was broken since it was introduced. Mixin API pulled in explicitly (quilt-loader does not bundle
@@ -52,6 +53,10 @@
 - Release pipeline: changelog extraction used a broken sed idiom that never looped and produced
   headers plus one line (v3.0.0 shipped with empty release notes); extraction now reads the first
   `## ` section body directly
+- Release pipeline: CurseForge publish used `curseforge-relations`, an input name that only
+  existed in mc-publish v2 — v3 ignores it, so the published files carry no dependency relations;
+  renamed to `curseforge-dependencies` with the v3 `slug(type)` syntax (3.1.0 files on CurseForge
+  are unaffected; the fix applies from the next release)
 
 ## 3.0.0 — Multi-Version Restructure + Entity Filter
 
