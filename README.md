@@ -75,8 +75,9 @@ Required dependencies:
 | 1.21.5 | 3.0.0-1.21.5 | Fabric |
 | 1.21.6 – 1.21.11 | 3.0.0-1.21.11 | Fabric |
 | 26.1 – 26.1.2 | 3.0.0-26.1.2 | Fabric |
+| 26.2 | 3.0.0-26.2 | Fabric |
 
-Requires Java 21 (1.18.2-1.21.11) or Java 25 (26.1.2). Client-side mod; no server-side installation needed.
+Requires Java 21 (1.18.2-1.21.11) or Java 25 (26.1.2, 26.2). Client-side mod; no server-side installation needed.
 
 The 1.21 line is split into three builds because the Minecraft client API changed
 incompatibly inside it: `PlayerEntity.isCreative` was remapped at 1.21.5 and the
