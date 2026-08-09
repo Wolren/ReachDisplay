@@ -27,6 +27,8 @@ jobs:
             jdk: '21'
           - subproject: version-26_1_2
             jdk: '25'
+          - subproject: version-26_2
+            jdk: '25'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -60,8 +62,10 @@ jobs:
         run: |
           VERSION=$(grep 'mod_version' ${{ matrix.subproject }}/gradle.properties | cut -d= -f2)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          RESPONSE=$(curl -s "https://api.modrinth.com/v2/project/reach-display/version?version_number=$VERSION")
-          if echo "$RESPONSE" | grep -q '"id"'; then
+          # The list endpoint ignores ?version_number - filter client-side.
+          EXISTS=$(curl -s "https://api.modrinth.com/v2/project/reach-display/version" \
+            | python3 -c "import json,sys; vs=json.load(sys.stdin); print(any(v['version_number']=='$VERSION' for v in vs))")
+          if [ "$EXISTS" = "True" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
             echo "Version $VERSION already exists on Modrinth, skipping"
           else
@@ -83,6 +87,10 @@ jobs:
           loaders: fabric
           fail-mode: warn
           changelog-file: CHANGELOG.md
+          curseforge-relations: |
+            fabric-api:requiredDependency
+            midnightlib:requiredDependency
+            modmenu:optionalDependency
       - name: Upload JAR
         uses: actions/upload-artifact@v7
         with:
@@ -98,8 +106,22 @@ jobs:
       - uses: actions/checkout@v4
       - name: Extract changelog
         run: |
-          sed -n '/^## /{p; :a n; /^## /q; p;}' CHANGELOG.md \
-            | head -n -1 | tail -n +2 > /tmp/release-notes.md
+          # First ## section body, CRLF-safe. (The old sed idiom never looped:
+          # it printed only headers plus one line, so release notes were garbage.)
+          python3 - <<'EOF'
+          import pathlib
+          lines = pathlib.Path('CHANGELOG.md').read_text().splitlines()
+          out, seen = [], False
+          for line in lines:
+              if line.startswith('## '):
+                  if seen:
+                      break
+                  seen = True
+                  continue
+              if seen:
+                  out.append(line)
+          pathlib.Path('/tmp/release-notes.md').write_text('\n'.join(out))
+          EOF
       - name: Download all JARs
         uses: actions/download-artifact@v4
         with:

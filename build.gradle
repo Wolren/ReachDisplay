@@ -74,6 +74,11 @@ subprojects {
             gameVersions = project.hasProperty("game_versions") ? project.game_versions.split(",") : [project.minecraft_version]
             loaders = ["fabric"]
             changelog = rootProject.file("CHANGELOG.md").text
+            dependencies {
+                required.project "fabric-api"
+                required.project "midnightlib"
+                optional.project "modmenu"
+            }
         }
     }
 }

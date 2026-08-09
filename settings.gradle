@@ -21,3 +21,4 @@ include 'version-1_21_1'
 include 'version-1_21_5'
 include 'version-1_21_11'
 include 'version-26_1_2' // MC 26.1+ is unobfuscated — no mappings required
+include 'version-26_2' // MC 26.2 — unobfuscated, no mappings required

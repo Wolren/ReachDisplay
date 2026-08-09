@@ -1,13 +1,17 @@
 # Changelog
 
-## [Unreleased]
+## 3.1.0 - Eight-Version Coverage + Pipeline Fixes
 
 ### Added
 
 - MixinExtras 0.5.4 dependency (self-contained via `include`)
 - .editorconfig for consistent code style
 - Dependabot tracking for GitHub Actions updates
-- MC 26.1.2 support restored as `version-26_1_2` (v3.0.0 feature set, version `3.0.0-26.1.2`)
+- MC 26.1.2 support restored as `version-26_1_2` (v3.0.0 feature set, version `3.1.0-26.1.2`)
+- New `version-26_2` subproject for MC 26.2 (version `3.1.0-26.2`); the HUD
+  extraction moved from `Gui.extractRenderState(GuiGraphicsExtractor, DeltaTracker)` to
+  `Gui.extractRenderState(DeltaTracker, boolean, boolean)`, so the HUD mixin now targets
+  `Hud.extractRenderState(GuiGraphicsExtractor, DeltaTracker)` which kept the old signature
 - Weapons display: spear (stab) hits are tracked and shown on the hit/average displays on 26.1.2
 - Shadow toggle and shadow color options on 1.18.2 and 1.19.4 (were always-on black shadows)
 - Hit/average display mode (number / blocks / M) now applies on 1.20.1
@@ -17,18 +21,22 @@
   `>=1.21.6 <=1.21.11` — the client API broke at 1.21.5 and 1.21.6)
 - Per-subproject `game_versions` publish matrix on Modrinth + CurseForge — no duplicate or
   over-claimed game versions (1.20.1 bounded to <=1.20.6, 26.1.2 bounded to <=26.1.2)
+- Publish dependency metadata: Modrinth + CurseForge now declare fabric-api and midnightlib as
+  required, modmenu as optional — launchers auto-install them for players
 - Quilt builds fixed: each subproject now applies quilt-loom 1.15.1 (`-PuseQuilt=true`) instead of
   fabric-loom, which cannot remap quilted-fabric-api (no `quilt.mod.json` support); the quilt build
   was broken since it was introduced. Mixin API pulled in explicitly (quilt-loader does not bundle
   it). 26.1.2 quilt build uses fabric-api directly (no quilted-fabric-api for 26.x) and declares
-  `fabric_api` in quilt.mod.json. CI now builds both loaders for all 7 subprojects.
+  `fabric_api` in quilt.mod.json. CI now builds both loaders for all 8 subprojects.
 
 ### Infrastructure
 
 - CI now builds each subproject separately (fail-fast disabled)
 - Release workflow builds all versions, collects JARs, creates GitHub Release with changelog
 - Changelog follows KeepAChangelog format for automated extraction
-- CI and release workflows now build all 7 subprojects (26.1.2 on JDK 25); CI triggers on `restructure`
+- CI and release workflows now build all 8 subprojects (26.x on JDK 25); CI triggers on `restructure`
+- Modrinth dependency metadata backfilled retroactively on the published v3.0.0 versions
+  (fabric-api + midnightlib required, modmenu optional)
 
 ### Fixed
 
@@ -36,6 +44,14 @@
 - 26.1.2: `fabric.mod.json` depended on the non-existent `fabric-api` mod id instead of `fabric`
 - All subprojects: `quilt.mod.json` license metadata said GPL-3.0 while v3.0.0+ is All Rights Reserved
 - 26.1.2: hit distance no longer stays on screen forever — keep-last-distance and reset-time settings apply like on other versions
+- 26.1.2/26.2: `fabric.mod.json` depends on `fabric-api` (the real mod id on 26.x) instead of the
+  `fabric` alias, which 26.x fabric-api jars no longer provide — the mod would not start otherwise
+- Release pipeline: Modrinth publish skip-check always evaluated to "version exists" and silently
+  skipped every publish (the version-list endpoint ignores the `?version_number` query parameter);
+  the check now filters versions client-side
+- Release pipeline: changelog extraction used a broken sed idiom that never looped and produced
+  headers plus one line (v3.0.0 shipped with empty release notes); extraction now reads the first
+  `## ` section body directly
 
 ## 3.0.0 — Multi-Version Restructure + Entity Filter
 
