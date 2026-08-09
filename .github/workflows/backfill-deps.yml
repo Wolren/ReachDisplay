@@ -6,7 +6,7 @@ jobs:
   backfill:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Backfill Modrinth v3.0.0 dependency metadata
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
