@@ -1,0 +1,13 @@
+name: Backfill deps
+on:
+  workflow_dispatch:
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Backfill Modrinth v3.0.0 dependency metadata
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: python3 .github/scripts/backfill_deps.py
