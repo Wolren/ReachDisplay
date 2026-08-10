@@ -175,7 +175,8 @@ jobs:
           IDS=$(echo "$MAP" | jq -c --argjson ts "$MC_TYPES" --arg gv "${{ matrix.gameversions }}" '[.[] | select(.gameVersionTypeID as $tid | ($ts | index($tid)) != null) | select(.name as $nm | (($gv | split(",")) | index($nm)) != null) | .id]')
           echo "resolved game version ids: $IDS"
           echo "$IDS" | jq -e 'length > 0' >/dev/null || { echo "NO VERSION IDS RESOLVED"; exit 1; }
-          METADATA=$(jq -n --arg v "$VERSION" --argjson ids "$IDS" --rawfile cl CHANGELOG.md \
+          tr -d '\r' < CHANGELOG.md > /tmp/cl.md
+          METADATA=$(jq -n -c --arg v "$VERSION" --argjson ids "$IDS" --rawfile cl /tmp/cl.md \
             '{changelog: $cl, changelogType: "markdown", displayName: $v, gameVersions: $ids, releaseType: "release", relations: {projects: [{"slug": "fabric-api", "type": "requiredDependency"}, {"slug": "midnightlib", "type": "requiredDependency"}, {"slug": "modmenu", "type": "optionalDependency"}]}}')
           echo "METADATA: $(echo "$METADATA" | head -c 300)"
           RESP=$(curl -s -X POST -H "X-Api-Token: $CF_TOKEN" -F "metadata=$METADATA" -F "file=@$JAR" "https://minecraft.curseforge.com/api/projects/$CF_PROJECT/upload-file")
