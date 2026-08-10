@@ -1,5 +1,25 @@
 # Changelog
 
+## 3.1.1 - Forge + NeoForge Ports, Quilt Publishing Fixed
+
+### Added
+
+- **Forge 1.20.1 port** (`3.1.1-1.20.1-forge`): standalone ForgeGradle project. HUD rendering
+  via `RenderGuiEvent.Post` (Forge replaces `Minecraft.gui` with a `ForgeGui` subclass whose
+  `render` override bypasses any `Gui.render` mixin — event-based rendering is the reliable path).
+  Config via midnightlib 1.4.2-forge (the 1.9.x forge builds lack a refmap and crash Mojmap dev runs)
+  plus an F6 keybind that opens the config screen directly.
+- **NeoForge ports**: `3.1.1-1.21.1-neoforge`, `3.1.1-1.21.11-neoforge`, `3.1.1-26.2-neoforge`
+  (moddev 2.0.141, runtime-verified).
+- **Quilt releases now declare the quilt loader** on Modrinth and CurseForge (`fabric,quilt`
+  per subproject) — previously shipped as fabric-only.
+- **Quilt runtime fixes**: `quilt.mod.json` license in object form (the strict SPDX string check
+  rejects `"ARR"`), plain `entrypoints` with fabric type names (`fabric-like:entrypoints` does not
+  exist in quilt-loader 0.30.x), quilt-loader pinned to 0.30.1-beta.2, loom `mods` block to silence
+  the dev-run discovery error.
+- **Forge config reliability**: HUD drawing suppressed while a screen is open (no more
+  counter-artifacts behind the Options screen); midnightlib 1.4.2-forge pinned for 1.20.1.
+
 ## 3.1.0 - Eight-Version Coverage + Pipeline Fixes
 
 ### Added

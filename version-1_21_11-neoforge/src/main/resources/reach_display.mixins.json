@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.wolren.reach_display.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [],
+  "client": [
+    "GuiMixin",
+    "PlayerAttackMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

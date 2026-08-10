@@ -22,3 +22,8 @@ include 'version-1_21_5'
 include 'version-1_21_11'
 include 'version-26_1_2' // MC 26.1+ is unobfuscated — no mappings required
 include 'version-26_2' // MC 26.2 — unobfuscated, no mappings required
+include 'version-1_21_1-neoforge'
+include 'version-1_21_11-neoforge'
+include 'version-26_2-neoforge'
+// version-1_20_1-forge is a standalone project (ForgeGradle needs Gradle 8.x, repo wrapper is 9.x):
+// it has its own settings.gradle, gradlew and wrapper. Not included here.

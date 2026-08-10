@@ -53,31 +53,31 @@ The filter applies to all three displays.
 
 ## Installation
 
-1. Install Fabric Loader for your Minecraft version.
+1. Install the loader for your Minecraft version (Fabric Loader, Quilt Loader, Forge, or NeoForge).
 2. Download the jar for your version from [Modrinth](https://modrinth.com/mod/reach-display) or [CurseForge](https://www.curseforge.com/minecraft/mc-mods/reach-display).
 3. Drop the jar into your `mods` folder.
 
 Required dependencies:
 
-- [Fabric API](https://modrinth.com/mod/fabric-api)
-- [MidnightLib](https://modrinth.com/mod/midnightlib)
+- Fabric builds: [Fabric API](https://modrinth.com/mod/fabric-api) (Quilt runs the Fabric build on quilted-fabric-api)
+- All builds: [MidnightLib](https://modrinth.com/mod/midnightlib)
 
-[Mod Menu](https://modrinth.com/mod/modmenu) is recommended: it provides the entry point for the config screen.
+[Mod Menu](https://modrinth.com/mod/modmenu) is recommended on Fabric/Quilt: it provides the entry point for the config screen.
 
 ## Compatibility
 
-| Minecraft | Mod version | Loader |
+| Minecraft | Mod version | Loaders |
 |---|---|---|
-| 1.18.2 | 3.0.0-1.18.2 | Fabric |
-| 1.19.4 | 3.0.0-1.19.4 | Fabric |
-| 1.20.1 | 3.0.0-1.20.1 | Fabric |
-| 1.21.1 – 1.21.4 | 3.0.0-1.21.1 | Fabric |
-| 1.21.5 | 3.0.0-1.21.5 | Fabric |
-| 1.21.6 – 1.21.11 | 3.0.0-1.21.11 | Fabric |
-| 26.1 – 26.1.2 | 3.0.0-26.1.2 | Fabric |
-| 26.2 | 3.0.0-26.2 | Fabric |
+| 1.17.1 – 1.18.2 | 3.1.0-1.17.1 | Fabric, Quilt |
+| 1.19.x | 3.1.0-1.19 | Fabric, Quilt |
+| 1.20.1 | 3.1.0-1.20.1 | Fabric, Quilt, Forge |
+| 1.21.1 | 3.1.0-1.21.1 | Fabric, Quilt, NeoForge |
+| 1.21.5 | 3.1.0-1.21.5 | Fabric, Quilt |
+| 1.21.6 – 1.21.11 | 3.1.0-1.21.11 | Fabric, Quilt, NeoForge |
+| 26.1.2 | 3.1.0-26.1.2 | Fabric, Quilt |
+| 26.2 | 3.1.0-26.2 | Fabric, Quilt, NeoForge |
 
-Requires Java 21 (1.18.2-1.21.11) or Java 25 (26.1.2, 26.2). Client-side mod; no server-side installation needed.
+Requires Java 17 (1.20.1 Forge), Java 21 (1.18.2-1.21.11), or Java 25 (26.1.2, 26.2). Client-side mod; no server-side installation needed.
 
 The 1.21 line is split into three builds because the Minecraft client API changed
 incompatibly inside it: `PlayerEntity.isCreative` was remapped at 1.21.5 and the

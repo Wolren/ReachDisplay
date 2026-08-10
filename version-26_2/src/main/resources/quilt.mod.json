@@ -16,17 +16,18 @@
         "repo": "https://github.com/Wolren/ReachDisplay",
         "issues": "https://github.com/Wolren/ReachDisplay/issues"
       },
-      "license": "ARR",
+      "license": {
+        "name": "All Rights Reserved",
+        "id": "ARR",
+        "url": "https://github.com/Wolren/ReachDisplay"
+      },
       "icon": "assets/reach_display/icon.png"
     },
     "intermediate_mappings": "net.fabricmc:intermediary",
-    "entrypoints": {
-      "client_init": "net.wolren.reach_display.ReachDisplay"
-    },
     "depends": [
       {
         "id": "quilt_loader",
-        "version": ">=0.17.0"
+        "version": ">=0.30.1-beta.2"
       },
       {
         "id": "fabric-api",
@@ -40,7 +41,10 @@
         "id": "midnightlib",
         "version": ">=1.9.3"
       }
-    ]
+    ],
+    "entrypoints": {
+      "client": "net.wolren.reach_display.ReachDisplay"
+    }
   },
   "mixin": "reach_display.mixins.json"
 }

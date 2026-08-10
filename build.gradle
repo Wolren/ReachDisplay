@@ -30,8 +30,12 @@ subprojects {
 
     processResources {
         inputs.property "version", project.version
-        inputs.property "minecraft_version", project.minecraft_version
-        inputs.property "loader_version", project.loader_version
+        if (project.hasProperty("minecraft_version")) {
+            inputs.property "minecraft_version", project.minecraft_version
+        }
+        if (project.hasProperty("loader_version")) {
+            inputs.property "loader_version", project.loader_version
+        }
         filteringCharset "UTF-8"
         filesMatching("fabric.mod.json") {
             expand "version": project.version,
@@ -72,12 +76,17 @@ subprojects {
             uploadFile = tasks.findByName("remapJar") ?: tasks.jar
             // Per-subproject game version list (gradle.properties: game_versions=a,b,c)
             gameVersions = project.hasProperty("game_versions") ? project.game_versions.split(",") : [project.minecraft_version]
-            loaders = ["fabric"]
+            // Per-subproject loader list (gradle.properties: publish_loaders=fabric,quilt or neoforge)
+            loaders = project.hasProperty("publish_loaders") ? project.publish_loaders.split(",") : ["fabric"]
             changelog = rootProject.file("CHANGELOG.md").text
             dependencies {
-                required.project "fabric-api"
+                if (project.hasProperty("publish_fabric_api")) {
+                    required.project "fabric-api"
+                }
                 required.project "midnightlib"
-                optional.project "modmenu"
+                if (project.hasProperty("publish_modmenu")) {
+                    optional.project "modmenu"
+                }
             }
         }
     }

@@ -23,6 +23,14 @@ if (useQuilt) {
     apply plugin: 'net.fabricmc.fabric-loom'
 }
 
+loom {
+    mods {
+        "reach_display" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     // MC 26.1+ ships unobfuscated: no mappings line, no remap configurations.

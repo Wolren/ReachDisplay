@@ -15,20 +15,75 @@ jobs:
         include:
           - subproject: version-1_17_1_18
             jdk: '21'
+            loaders: fabric,quilt
+            cfdeps: |-
+              fabric-api(required)
+              midnightlib(required)
+              modmenu(optional)
           - subproject: version-1_19
             jdk: '21'
+            loaders: fabric,quilt
+            cfdeps: |-
+              fabric-api(required)
+              midnightlib(required)
+              modmenu(optional)
           - subproject: version-1_20_1
             jdk: '21'
+            loaders: fabric,quilt
+            cfdeps: |-
+              fabric-api(required)
+              midnightlib(required)
+              modmenu(optional)
           - subproject: version-1_21_1
             jdk: '21'
+            loaders: fabric,quilt
+            cfdeps: |-
+              fabric-api(required)
+              midnightlib(required)
+              modmenu(optional)
           - subproject: version-1_21_5
             jdk: '21'
+            loaders: fabric,quilt
+            cfdeps: |-
+              fabric-api(required)
+              midnightlib(required)
+              modmenu(optional)
           - subproject: version-1_21_11
             jdk: '21'
+            loaders: fabric,quilt
+            cfdeps: |-
+              fabric-api(required)
+              midnightlib(required)
+              modmenu(optional)
           - subproject: version-26_1_2
             jdk: '25'
+            loaders: fabric,quilt
+            cfdeps: |-
+              fabric-api(required)
+              midnightlib(required)
+              modmenu(optional)
           - subproject: version-26_2
             jdk: '25'
+            loaders: fabric,quilt
+            cfdeps: |-
+              fabric-api(required)
+              midnightlib(required)
+              modmenu(optional)
+          - subproject: version-1_21_1-neoforge
+            jdk: '21'
+            loaders: neoforge
+            cfdeps: |-
+              midnightlib(required)
+          - subproject: version-1_21_11-neoforge
+            jdk: '21'
+            loaders: neoforge
+            cfdeps: |-
+              midnightlib(required)
+          - subproject: version-26_2-neoforge
+            jdk: '25'
+            loaders: neoforge
+            cfdeps: |-
+              midnightlib(required)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -84,21 +139,71 @@ jobs:
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           curseforge-version: ${{ steps.check_modrinth.outputs.version }}
           files: ${{ matrix.subproject }}/build/libs/!(*-@(dev|sources|javadoc)).jar
-          loaders: fabric
+          loaders: ${{ matrix.loaders }}
           fail-mode: warn
           changelog-file: CHANGELOG.md
-          curseforge-dependencies: |
-            fabric-api(required)
-            midnightlib(required)
-            modmenu(optional)
+          curseforge-dependencies: ${{ matrix.cfdeps }}
       - name: Upload JAR
         uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.subproject }}
           path: ${{ matrix.subproject }}/build/libs/*.jar
 
+  forge-1201:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Build Forge 1.20.1 (standalone project)
+        run: |
+          cd version-1_20_1-forge
+          chmod +x gradlew
+          ./gradlew build --no-daemon -Dorg.gradle.java.home=$JAVA_HOME
+      - name: Check if version exists on Modrinth
+        id: check_modrinth
+        run: |
+          cd version-1_20_1-forge
+          VERSION=$(grep 'mod_version' gradle.properties | cut -d= -f2)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          EXISTS=$(curl -s "https://api.modrinth.com/v2/project/reach-display/version" \
+            | python3 -c "import json,sys; vs=json.load(sys.stdin); print(any(v['version_number']=='$VERSION' for v in vs))")
+          if [ "$EXISTS" = "True" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Version $VERSION already exists on Modrinth, skipping"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Publish Forge 1.20.1 to Modrinth
+        if: steps.check_modrinth.outputs.exists == 'false'
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: |
+          cd version-1_20_1-forge
+          ./gradlew modrinth --no-daemon -Dorg.gradle.java.home=$JAVA_HOME
+      - name: Publish Forge 1.20.1 to CurseForge
+        uses: Kira-NT/mc-publish@v3
+        with:
+          curseforge-id: 991296
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          curseforge-version: ${{ steps.check_modrinth.outputs.version }}
+          files: version-1_20_1-forge/build/libs/!(*-@(dev|sources|javadoc)).jar
+          loaders: forge
+          fail-mode: warn
+          changelog-file: CHANGELOG.md
+          curseforge-dependencies: |-
+            midnightlib(required)
+      - name: Upload JAR
+        uses: actions/upload-artifact@v7
+        with:
+          name: version-1_20_1-forge
+          path: version-1_20_1-forge/build/libs/*.jar
+
   release:
-    needs: build
+    needs: [build, forge-1201]
     runs-on: ubuntu-latest
     permissions:
       contents: write

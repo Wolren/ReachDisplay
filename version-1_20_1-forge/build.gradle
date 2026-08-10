@@ -1,0 +1,98 @@
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net' }
+        maven { url = 'https://repo.spongepowered.org/maven' }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '6.0.25', changing: false
+        classpath 'org.spongepowered:mixingradle:0.7.38'
+    }
+}
+
+plugins {
+    id 'com.modrinth.minotaur' version '2.9.0'
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.spongepowered.mixin'
+
+version = project.mod_version
+group = project.maven_group
+base { archivesName = project.archives_base_name }
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: 'official', version: project.minecraft_version
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                reach_display {
+                    source sourceSets.main
+                }
+            }
+        }
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                reach_display {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+mixin {
+    add sourceSets.main, 'reach_display.refmap.json'
+    config 'reach_display.mixins.json'
+}
+
+repositories {
+    maven { url = "https://api.modrinth.com/maven" }
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
+    implementation fg.deobf("maven.modrinth:midnightlib:${project.midnightlib_version}")
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+
+processResources {
+    inputs.property "version", project.version
+    filesMatching("META-INF/mods.toml") {
+        expand "version": project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+}
+
+jar {
+    from("${rootProject.projectDir}/../LICENSE") {
+        rename { "${it}_${archiveBaseName.get()}" }
+    }
+}
+
+modrinth {
+    token = System.getenv("MODRINTH_TOKEN")
+    projectId = "reach-display"
+    versionNumber = project.mod_version
+    versionName = project.mod_version
+    uploadFile = jar
+    gameVersions = project.game_versions.split(",").toList()
+    loaders = ["forge"]
+    changelog = file("${rootProject.projectDir}/../CHANGELOG.md").text
+    dependencies {
+        required.project "midnightlib"
+    }
+}
