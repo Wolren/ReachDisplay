@@ -11,7 +11,10 @@ jobs:
           CF_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
           CF_PROJECT: 991296
         run: |
-          FILES=$(curl -s -H "x-api-key: $CF_TOKEN" "https://api.curseforge.com/v1/mods/$CF_PROJECT/files?pageSize=100")
+          echo "--- RAW RESPONSE (first 600 chars) ---"
+          curl -s -H "x-api-key: $CF_TOKEN" "https://api.curseforge.com/v1/mods/$CF_PROJECT/files?pageSize=5" | tee /tmp/cf_raw.json | head -c 600
+          echo ""
+          FILES=$(cat /tmp/cf_raw.json)
           echo "--- ALL FILES (first 40) ---"
           echo "$FILES" | jq -r '.data[:40][] | "\(.id)\t\(.displayName)\t\(.fileDate)\t\(.releaseType)"'
           echo "--- 3.1.1 files ---"
