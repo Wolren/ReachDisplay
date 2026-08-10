@@ -144,7 +144,7 @@ jobs:
         run: |
           ./gradlew :${{ matrix.subproject }}:modrinth --no-daemon
       - name: Publish ${{ matrix.subproject }} to CurseForge
-        uses: Kira-NT/mc-publish@v3
+        uses: Kira-NT/mc-publish@52307b03863581dec6b652b83e597aec02ebb075  # v3 — SHA-pinned (moving v3 tag silently changed CF game-version resolution 2026-08-10)
         with:
           curseforge-id: 991296
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
@@ -152,6 +152,7 @@ jobs:
           files: ${{ matrix.subproject }}/build/libs/!(*-@(dev|sources|javadoc)).jar
           loaders: ${{ matrix.loaders }}
           game-versions: ${{ matrix.gameversions }}
+          curseforge-game-versions: ${{ matrix.gameversions }}
           fail-mode: warn
           changelog-file: CHANGELOG.md
           curseforge-dependencies: ${{ matrix.cfdeps }}
@@ -197,7 +198,7 @@ jobs:
           cd version-1_20_1-forge
           ./gradlew modrinth --no-daemon -Dorg.gradle.java.home=$JAVA_HOME
       - name: Publish Forge 1.20.1 to CurseForge
-        uses: Kira-NT/mc-publish@v3
+        uses: Kira-NT/mc-publish@52307b03863581dec6b652b83e597aec02ebb075  # v3 — SHA-pinned (moving v3 tag silently changed CF game-version resolution 2026-08-10)
         with:
           curseforge-id: 991296
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
