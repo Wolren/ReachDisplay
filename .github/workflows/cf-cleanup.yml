@@ -1,0 +1,21 @@
+name: CF Cleanup
+on:
+  workflow_dispatch:
+
+jobs:
+  dedupe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete duplicate CurseForge files (keep newest per displayName)
+        env:
+          CF_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+          CF_PROJECT: 991296
+        run: |
+          FILES=$(curl -s -H "x-api-key: $CF_TOKEN" "https://api.curseforge.com/v1/mods/$CF_PROJECT/files?pageSize=100")
+          echo "--- duplicate groups (displayName count > 1) ---"
+          echo "$FILES" | jq -r '.data | group_by(.displayName) | map(select(length > 1)) | .[] | "\(.[0].displayName): \(length) files"'
+          echo "--- deleting older duplicates ---"
+          echo "$FILES" | jq -r '.data | group_by(.displayName) | map(select(length > 1)) | .[] | sort_by(.fileDate) | .[:-1][] | "\(.id)\t\(.displayName)\t\(.fileDate)"' | while IFS=$'\t' read -r FID NAME DATE; do
+            CODE=$(curl -s -X DELETE -H "x-api-key: $CF_TOKEN" "https://api.curseforge.com/v1/mods/$CF_PROJECT/files/$FID" -o /dev/null -w "%{http_code}")
+            echo "DELETE $FID ($NAME, $DATE): HTTP $CODE"
+          done
