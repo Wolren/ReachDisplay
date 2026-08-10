@@ -16,7 +16,7 @@ jobs:
           - subproject: version-1_17_1_18
             jdk: '21'
             loaders: fabric,quilt
-            gameversions: 1.17.1,1.18,1.18.1,1.18.2
+            gameversions: '>=1.17.1 <=1.18.2'
             cfdeps: |-
               fabric-api(required)
               midnightlib(required)
@@ -24,7 +24,7 @@ jobs:
           - subproject: version-1_19
             jdk: '21'
             loaders: fabric,quilt
-            gameversions: 1.19.1,1.19.2,1.19.3,1.19.4
+            gameversions: '>=1.19.1 <=1.19.4'
             cfdeps: |-
               fabric-api(required)
               midnightlib(required)
@@ -32,7 +32,7 @@ jobs:
           - subproject: version-1_20_1
             jdk: '21'
             loaders: fabric,quilt
-            gameversions: 1.20.1,1.20.2,1.20.3,1.20.4,1.20.5,1.20.6
+            gameversions: '>=1.20.1 <=1.20.6'
             cfdeps: |-
               fabric-api(required)
               midnightlib(required)
@@ -40,7 +40,7 @@ jobs:
           - subproject: version-1_21_1
             jdk: '21'
             loaders: fabric,quilt
-            gameversions: 1.21.1,1.21.2,1.21.3,1.21.4
+            gameversions: '>=1.21.1 <=1.21.4'
             cfdeps: |-
               fabric-api(required)
               midnightlib(required)
@@ -48,7 +48,7 @@ jobs:
           - subproject: version-1_21_5
             jdk: '21'
             loaders: fabric,quilt
-            gameversions: 1.21.5
+            gameversions: '>=1.21.5 <=1.21.5'
             cfdeps: |-
               fabric-api(required)
               midnightlib(required)
@@ -56,7 +56,7 @@ jobs:
           - subproject: version-1_21_11
             jdk: '21'
             loaders: fabric,quilt
-            gameversions: 1.21.6,1.21.7,1.21.8,1.21.9,1.21.10,1.21.11
+            gameversions: '>=1.21.6 <=1.21.11'
             cfdeps: |-
               fabric-api(required)
               midnightlib(required)
@@ -64,7 +64,7 @@ jobs:
           - subproject: version-26_1_2
             jdk: '25'
             loaders: fabric,quilt
-            gameversions: 26.1,26.1.1,26.1.2
+            gameversions: '>=26.1 <=26.1.2'
             cfdeps: |-
               fabric-api(required)
               midnightlib(required)
@@ -72,7 +72,7 @@ jobs:
           - subproject: version-26_2
             jdk: '25'
             loaders: fabric,quilt
-            gameversions: 26.2
+            gameversions: '>=26.2 <=26.2'
             cfdeps: |-
               fabric-api(required)
               midnightlib(required)
@@ -80,19 +80,16 @@ jobs:
           - subproject: version-1_21_1-neoforge
             jdk: '21'
             loaders: neoforge
-            gameversions: 1.21.1
             cfdeps: |-
               midnightlib(required)
           - subproject: version-1_21_11-neoforge
             jdk: '21'
             loaders: neoforge
-            gameversions: 1.21.11
             cfdeps: |-
               midnightlib(required)
           - subproject: version-26_2-neoforge
             jdk: '25'
             loaders: neoforge
-            gameversions: 26.2
             cfdeps: |-
               midnightlib(required)
     runs-on: ubuntu-latest
@@ -143,7 +140,16 @@ jobs:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
         run: |
           ./gradlew :${{ matrix.subproject }}:modrinth --no-daemon
+      - name: Check CurseForge for existing files (idempotency guard)
+        id: check_cf
+        run: |
+          VERSION=$(grep 'mod_version' ${{ matrix.subproject }}/gradle.properties | cut -d= -f2)
+          FILES=$(curl -s "https://www.curseforge.com/api/v1/mods/991296/files?pageSize=50&sortBy=dateCreated&sortDescending=true")
+          COUNT=$(echo "$FILES" | jq --arg v "$VERSION" '[.data[] | select(.displayName == $v)] | length')
+          echo "cf_exists=$([ "$COUNT" -gt 0 ] && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "cf_count=$COUNT" >> $GITHUB_OUTPUT
       - name: Publish ${{ matrix.subproject }} to CurseForge
+        if: steps.check_cf.outputs.cf_exists == 'false'
         uses: Kira-NT/mc-publish@52307b03863581dec6b652b83e597aec02ebb075  # v3 — SHA-pinned (moving v3 tag silently changed CF game-version resolution 2026-08-10)
         with:
           curseforge-id: 991296
@@ -152,7 +158,6 @@ jobs:
           files: ${{ matrix.subproject }}/build/libs/!(*-@(dev|sources|javadoc)).jar
           loaders: ${{ matrix.loaders }}
           game-versions: ${{ matrix.gameversions }}
-          curseforge-game-versions: ${{ matrix.gameversions }}
           fail-mode: warn
           changelog-file: CHANGELOG.md
           curseforge-dependencies: ${{ matrix.cfdeps }}
@@ -197,7 +202,16 @@ jobs:
         run: |
           cd version-1_20_1-forge
           ./gradlew modrinth --no-daemon -Dorg.gradle.java.home=$JAVA_HOME
+      - name: Check CurseForge for existing files (idempotency guard)
+        id: check_cf
+        run: |
+          VERSION=$(grep 'mod_version' version-1_20_1-forge/gradle.properties | cut -d= -f2)
+          FILES=$(curl -s "https://www.curseforge.com/api/v1/mods/991296/files?pageSize=50&sortBy=dateCreated&sortDescending=true")
+          COUNT=$(echo "$FILES" | jq --arg v "$VERSION" '[.data[] | select(.displayName == $v)] | length')
+          echo "cf_exists=$([ "$COUNT" -gt 0 ] && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "cf_count=$COUNT" >> $GITHUB_OUTPUT
       - name: Publish Forge 1.20.1 to CurseForge
+        if: steps.check_cf.outputs.cf_exists == 'false'
         uses: Kira-NT/mc-publish@52307b03863581dec6b652b83e597aec02ebb075  # v3 — SHA-pinned (moving v3 tag silently changed CF game-version resolution 2026-08-10)
         with:
           curseforge-id: 991296
