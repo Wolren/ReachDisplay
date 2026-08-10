@@ -11,11 +11,9 @@ jobs:
           CF_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
           CF_PROJECT: 991296
         run: |
-          echo "--- RAW RESPONSE (first 600 chars) ---"
-          curl -s -w "\nHTTP_CODE:%{http_code}" -H "x-api-key: $CF_TOKEN" "https://api.curseforge.com/v1/mods/$CF_PROJECT/files?pageSize=5" | tee /tmp/cf_raw.json | head -c 700
-          echo ""
-          FILES=$(cat /tmp/cf_raw.json)
-          echo "--- ALL FILES (first 40) ---"
-          echo "$FILES" | jq -r '.data[:40][] | "\(.id)\t\(.displayName)\t\(.fileDate)\t\(.releaseType)"'
-          echo "--- 3.1.1 files ---"
-          echo "$FILES" | jq -r '.data[] | select(.displayName | contains("3.1.1")) | "\(.id)\t\(.displayName)\t\(.fileDate)"'
+          for FID in 8618055 8617931; do
+            CODE=$(curl -s -X DELETE -H "x-api-key: $CF_TOKEN" "https://api.curseforge.com/v1/mods/$CF_PROJECT/files/$FID" -o /tmp/del_$FID.json -w "%{http_code}")
+            echo "DELETE $FID: HTTP $CODE body: $(head -c 200 /tmp/del_$FID.json)"
+          done
+          echo "--- files list after delete attempt ---"
+          curl -s "https://www.curseforge.com/api/v1/mods/$CF_PROJECT/files?pageSize=10&sortBy=dateCreated&sortDescending=true" | jq -r '.data[] | select(.displayName | contains("3.1.1")) | "\(.id) \(.displayName)"'
