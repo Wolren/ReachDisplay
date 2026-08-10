@@ -168,13 +168,12 @@ jobs:
           VERSION=$(grep 'mod_version' ${{ matrix.subproject }}/gradle.properties | cut -d= -f2)
           JAR=$(ls ${{ matrix.subproject }}/build/libs/reach_display-${VERSION}.jar | head -1)
           TYPES=$(curl -s -H "X-Api-Token: $CF_TOKEN" "https://minecraft.curseforge.com/api/game/version-types?cache=true")
-          echo "RAW TYPES: $(echo "$TYPES" | head -c 200)"
-          MC_TYPE=$(echo "$TYPES" | jq -r '.data[]? | select(.name == "Minecraft") | .id' 2>/dev/null || echo EMPTY)
-          echo "MC_TYPE=$MC_TYPE"
+          MC_TYPES=$(echo "$TYPES" | jq -c '[.[] | select(.slug | startswith("minecraft")) | .id]')
+          echo "minecraft type ids: $MC_TYPES"
           MAP=$(curl -s -H "X-Api-Token: $CF_TOKEN" "https://minecraft.curseforge.com/api/game/versions?cache=true")
-          echo "RAW MAP: $(echo "$MAP" | head -c 200)"
-          IDS=$(echo "$MAP" | jq -c --argjson t "$MC_TYPE" --arg gv "${{ matrix.gameversions }}" '[.data[] | select(.type == $t) | select(($gv | split(",")) | index(.name)) | .id]')
+          IDS=$(echo "$MAP" | jq -c --argjson ts "$MC_TYPES" --arg gv "${{ matrix.gameversions }}" '[.[] | select(($ts | index(.gameVersionTypeID)) != null) | select(($gv | split(",")) | index(.name)) | .id]')
           echo "resolved game version ids: $IDS"
+          echo "$IDS" | jq -e 'length > 0' >/dev/null || { echo "NO VERSION IDS RESOLVED"; exit 1; }
           METADATA=$(jq -n --arg v "$VERSION" --argjson ids "$IDS" --rawfile cl CHANGELOG.md \
             '{changelog: $cl, changelogType: "markdown", displayName: $v, gameVersions: $ids, releaseType: "release", relations: {projects: [{"slug": "fabric-api", "type": "requiredDependency"}, {"slug": "midnightlib", "type": "requiredDependency"}, {"slug": "modmenu", "type": "optionalDependency"}]}}')
           RESP=$(curl -s -X POST -H "X-Api-Token: $CF_TOKEN" -F "metadata=$METADATA" -F "file=@$JAR" "https://minecraft.curseforge.com/api/projects/$CF_PROJECT/upload-file")
