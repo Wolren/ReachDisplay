@@ -167,9 +167,9 @@ jobs:
         run: |
           VERSION=$(grep 'mod_version' ${{ matrix.subproject }}/gradle.properties | cut -d= -f2)
           JAR=$(ls ${{ matrix.subproject }}/build/libs/reach_display-${VERSION}.jar | head -1)
-          TYPES=$(curl -s -H "x-api-key: $CF_TOKEN" "https://api.curseforge.com/v1/game/version-types?cache=true")
+          TYPES=$(curl -s -H "x-api-key: $CF_TOKEN" "https://minecraft.curseforge.com/api/game/version-types?cache=true")
           MC_TYPE=$(echo "$TYPES" | jq -r '.data[] | select(.name == "Minecraft") | .id')
-          MAP=$(curl -s -H "x-api-key: $CF_TOKEN" "https://api.curseforge.com/v1/game/versions?cache=true")
+          MAP=$(curl -s -H "x-api-key: $CF_TOKEN" "https://minecraft.curseforge.com/api/game/versions?cache=true")
           IDS=$(echo "$MAP" | jq -c --argjson t "$MC_TYPE" --arg gv "${{ matrix.gameversions }}" '[.data[] | select(.type == $t) | select(($gv | split(",")) | index(.name)) | .id]')
           echo "resolved game version ids: $IDS"
           METADATA=$(jq -n --arg v "$VERSION" --argjson ids "$IDS" --rawfile cl CHANGELOG.md \
