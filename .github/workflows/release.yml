@@ -171,7 +171,7 @@ jobs:
           MC_TYPES=$(echo "$TYPES" | jq -c '[.[] | select(.slug | startswith("minecraft")) | .id]')
           echo "minecraft type ids: $MC_TYPES"
           MAP=$(curl -s -H "X-Api-Token: $CF_TOKEN" "https://minecraft.curseforge.com/api/game/versions?cache=true")
-          IDS=$(echo "$MAP" | jq -c --argjson ts "$MC_TYPES" --arg gv "${{ matrix.gameversions }}" '[.[] | select(($ts | index(.gameVersionTypeID)) != null) | select(($gv | split(",")) | index(.name)) | .id]')
+          IDS=$(echo "$MAP" | jq -c --argjson ts "$MC_TYPES" --arg gv "${{ matrix.gameversions }}" '[.[] | select(.gameVersionTypeID as $tid | ($ts | index($tid)) != null) | select(.name as $nm | (($gv | split(",")) | index($nm)) != null) | .id]')
           echo "resolved game version ids: $IDS"
           echo "$IDS" | jq -e 'length > 0' >/dev/null || { echo "NO VERSION IDS RESOLVED"; exit 1; }
           METADATA=$(jq -n --arg v "$VERSION" --argjson ids "$IDS" --rawfile cl CHANGELOG.md \
