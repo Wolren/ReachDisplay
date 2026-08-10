@@ -167,6 +167,7 @@ jobs:
         run: |
           VERSION=$(grep 'mod_version' ${{ matrix.subproject }}/gradle.properties | cut -d= -f2)
           JAR=$(ls ${{ matrix.subproject }}/build/libs/reach_display-${VERSION}.jar | head -1)
+          echo "VERSION=$VERSION JAR=$JAR"
           TYPES=$(curl -s -H "X-Api-Token: $CF_TOKEN" "https://minecraft.curseforge.com/api/game/version-types?cache=true")
           MC_TYPES=$(echo "$TYPES" | jq -c '[.[] | select(.slug | startswith("minecraft")) | .id]')
           echo "minecraft type ids: $MC_TYPES"
@@ -176,6 +177,7 @@ jobs:
           echo "$IDS" | jq -e 'length > 0' >/dev/null || { echo "NO VERSION IDS RESOLVED"; exit 1; }
           METADATA=$(jq -n --arg v "$VERSION" --argjson ids "$IDS" --rawfile cl CHANGELOG.md \
             '{changelog: $cl, changelogType: "markdown", displayName: $v, gameVersions: $ids, releaseType: "release", relations: {projects: [{"slug": "fabric-api", "type": "requiredDependency"}, {"slug": "midnightlib", "type": "requiredDependency"}, {"slug": "modmenu", "type": "optionalDependency"}]}}')
+          echo "METADATA: $(echo "$METADATA" | head -c 300)"
           RESP=$(curl -s -X POST -H "X-Api-Token: $CF_TOKEN" -F "metadata=$METADATA" -F "file=@$JAR" "https://minecraft.curseforge.com/api/projects/$CF_PROJECT/upload-file")
           echo "$RESP" | head -c 400
           echo ""
