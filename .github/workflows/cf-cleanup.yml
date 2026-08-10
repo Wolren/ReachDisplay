@@ -12,7 +12,7 @@ jobs:
           CF_PROJECT: 991296
         run: |
           echo "--- RAW RESPONSE (first 600 chars) ---"
-          curl -s -H "x-api-key: $CF_TOKEN" "https://api.curseforge.com/v1/mods/$CF_PROJECT/files?pageSize=5" | tee /tmp/cf_raw.json | head -c 600
+          curl -s -w "\nHTTP_CODE:%{http_code}" -H "x-api-key: $CF_TOKEN" "https://api.curseforge.com/v1/mods/$CF_PROJECT/files?pageSize=5" | tee /tmp/cf_raw.json | head -c 700
           echo ""
           FILES=$(cat /tmp/cf_raw.json)
           echo "--- ALL FILES (first 40) ---"
