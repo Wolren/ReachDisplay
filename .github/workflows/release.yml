@@ -16,7 +16,8 @@ jobs:
           - subproject: version-1_17_1_18
             jdk: '21'
             loaders: fabric,quilt
-            gameversions: '>=1.17.1 <=1.18.2'
+            gameversions: 1.17.1,1.18,1.18.1,1.18.2
+            cf_mode: direct
             cfdeps: |-
               fabric-api(required)
               midnightlib(required)
@@ -24,7 +25,8 @@ jobs:
           - subproject: version-1_19
             jdk: '21'
             loaders: fabric,quilt
-            gameversions: '>=1.19.1 <=1.19.4'
+            gameversions: 1.19.1,1.19.2,1.19.3,1.19.4
+            cf_mode: direct
             cfdeps: |-
               fabric-api(required)
               midnightlib(required)
@@ -32,7 +34,8 @@ jobs:
           - subproject: version-1_20_1
             jdk: '21'
             loaders: fabric,quilt
-            gameversions: '>=1.20.1 <=1.20.6'
+            gameversions: 1.20.1,1.20.2,1.20.3,1.20.4,1.20.5,1.20.6
+            cf_mode: direct
             cfdeps: |-
               fabric-api(required)
               midnightlib(required)
@@ -40,7 +43,8 @@ jobs:
           - subproject: version-1_21_1
             jdk: '21'
             loaders: fabric,quilt
-            gameversions: '>=1.21.1 <=1.21.4'
+            gameversions: 1.21.1,1.21.2,1.21.3,1.21.4
+            cf_mode: direct
             cfdeps: |-
               fabric-api(required)
               midnightlib(required)
@@ -48,7 +52,8 @@ jobs:
           - subproject: version-1_21_5
             jdk: '21'
             loaders: fabric,quilt
-            gameversions: '>=1.21.5 <=1.21.5'
+            gameversions: 1.21.5
+            cf_mode: direct
             cfdeps: |-
               fabric-api(required)
               midnightlib(required)
@@ -56,7 +61,8 @@ jobs:
           - subproject: version-1_21_11
             jdk: '21'
             loaders: fabric,quilt
-            gameversions: '>=1.21.6 <=1.21.11'
+            gameversions: 1.21.6,1.21.7,1.21.8,1.21.9,1.21.10,1.21.11
+            cf_mode: direct
             cfdeps: |-
               fabric-api(required)
               midnightlib(required)
@@ -64,7 +70,8 @@ jobs:
           - subproject: version-26_1_2
             jdk: '25'
             loaders: fabric,quilt
-            gameversions: '>=26.1 <=26.1.2'
+            gameversions: 26.1,26.1.1,26.1.2
+            cf_mode: direct
             cfdeps: |-
               fabric-api(required)
               midnightlib(required)
@@ -72,7 +79,8 @@ jobs:
           - subproject: version-26_2
             jdk: '25'
             loaders: fabric,quilt
-            gameversions: '>=26.2 <=26.2'
+            gameversions: 26.2
+            cf_mode: direct
             cfdeps: |-
               fabric-api(required)
               midnightlib(required)
@@ -80,16 +88,19 @@ jobs:
           - subproject: version-1_21_1-neoforge
             jdk: '21'
             loaders: neoforge
+            cf_mode: mcpublish
             cfdeps: |-
               midnightlib(required)
           - subproject: version-1_21_11-neoforge
             jdk: '21'
             loaders: neoforge
+            cf_mode: mcpublish
             cfdeps: |-
               midnightlib(required)
           - subproject: version-26_2-neoforge
             jdk: '25'
             loaders: neoforge
+            cf_mode: mcpublish
             cfdeps: |-
               midnightlib(required)
     runs-on: ubuntu-latest
@@ -148,8 +159,27 @@ jobs:
           COUNT=$(echo "$FILES" | jq --arg v "$VERSION" '[.data[] | select(.displayName == $v)] | length')
           echo "cf_exists=$([ "$COUNT" -gt 0 ] && echo true || echo false)" >> $GITHUB_OUTPUT
           echo "cf_count=$COUNT" >> $GITHUB_OUTPUT
-      - name: Publish ${{ matrix.subproject }} to CurseForge
-        if: steps.check_cf.outputs.cf_exists == 'false'
+      - name: Publish ${{ matrix.subproject }} to CurseForge (direct API)
+        if: steps.check_cf.outputs.cf_exists == 'false' && matrix.cf_mode == 'direct'
+        env:
+          CF_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+          CF_PROJECT: 991296
+        run: |
+          VERSION=$(grep 'mod_version' ${{ matrix.subproject }}/gradle.properties | cut -d= -f2)
+          JAR=$(ls ${{ matrix.subproject }}/build/libs/reach_display-${VERSION}.jar | head -1)
+          TYPES=$(curl -s -H "x-api-key: $CF_TOKEN" "https://api.curseforge.com/v1/game/version-types?cache=true")
+          MC_TYPE=$(echo "$TYPES" | jq -r '.data[] | select(.name == "Minecraft") | .id')
+          MAP=$(curl -s -H "x-api-key: $CF_TOKEN" "https://api.curseforge.com/v1/game/versions?cache=true")
+          IDS=$(echo "$MAP" | jq -c --argjson t "$MC_TYPE" --arg gv "${{ matrix.gameversions }}" '[.data[] | select(.type == $t) | select(($gv | split(",")) | index(.name)) | .id]')
+          echo "resolved game version ids: $IDS"
+          METADATA=$(jq -n --arg v "$VERSION" --argjson ids "$IDS" --rawfile cl CHANGELOG.md \
+            '{changelog: $cl, changelogType: "markdown", displayName: $v, gameVersions: $ids, releaseType: "release", relations: {projects: [{"slug": "fabric-api", "type": "requiredDependency"}, {"slug": "midnightlib", "type": "requiredDependency"}, {"slug": "modmenu", "type": "optionalDependency"}]}}')
+          RESP=$(curl -s -X POST -H "x-api-key: $CF_TOKEN" -F "metadata=$METADATA" -F "file=@$JAR" "https://minecraft.curseforge.com/api/projects/$CF_PROJECT/upload-file")
+          echo "$RESP" | head -c 400
+          echo ""
+          echo "$RESP" | jq -e '.id' >/dev/null || { echo "UPLOAD FAILED"; exit 1; }
+      - name: Publish ${{ matrix.subproject }} to CurseForge (mc-publish)
+        if: steps.check_cf.outputs.cf_exists == 'false' && matrix.cf_mode == 'mcpublish'
         uses: Kira-NT/mc-publish@52307b03863581dec6b652b83e597aec02ebb075  # v3 — SHA-pinned (moving v3 tag silently changed CF game-version resolution 2026-08-10)
         with:
           curseforge-id: 991296
