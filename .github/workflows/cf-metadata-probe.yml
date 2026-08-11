@@ -1,0 +1,29 @@
+name: CF metadata probe
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Probe metadata update on 3.1.1-1.21.5
+        env:
+          CF_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+        run: |
+          URL=$(gh api repos/Wolren/ReachDisplay/releases/tags/v3.1.1 --jq '.assets[] | select(.name == "reach_display-3.1.1-1.21.5.jar") | .browser_download_url')
+          curl -sL -o /tmp/mod.jar "$URL"
+          TYPES=$(curl -s -H "X-Api-Token: $CF_TOKEN" "https://minecraft.curseforge.com/api/game/version-types?cache=true")
+          MC_TYPES=$(echo "$TYPES" | jq -c '[.[] | select(.slug | startswith("minecraft")) | .id]')
+          LOADER_TYPES=$(echo "$TYPES" | jq -c '[.[] | select(.slug | startswith("modloader")) | .id]')
+          ENV_TYPES=$(echo "$TYPES" | jq -c '[.[] | select(.slug | startswith("environment")) | .id]')
+          MAP=$(curl -s -H "X-Api-Token: $CF_TOKEN" "https://minecraft.curseforge.com/api/game/versions?cache=true")
+          MC=$(echo "$MAP" | jq -c --argjson ts "$MC_TYPES" --arg gv '1.21.5' '[.[] | select(.gameVersionTypeID as $t | ($ts | index($t)) != null) | select(.name as $n | (($gv | split(",")) | index($n)) != null) | .id]')
+          LD=$(echo "$MAP" | jq -c --argjson ts "$LOADER_TYPES" --arg lv 'fabric,quilt' '[.[] | select(.gameVersionTypeID as $t | ($ts | index($t)) != null) | select(.name as $n | (($lv | split(",")) | map(ascii_downcase) | index($n | ascii_downcase)) != null) | .id]')
+          EN=$(echo "$MAP" | jq -c --argjson ts "$ENV_TYPES" '[.[] | select(.gameVersionTypeID as $t | ($ts | index($t)) != null) | select(.name == "Client" or .name == "Server") | .id]')
+          IDS=$(jq -nc --argjson mc "$MC" --argjson ld "$LD" --argjson en "$EN" '$mc + $ld + $en')
+          echo "ids: $IDS"
+          METADATA=$(jq -n -c --argjson ids "$IDS" '{changelog: "3.1.1 release - see GitHub", changelogType: "markdown", displayName: "3.1.1-1.21.5", gameVersions: $ids, releaseType: "release", relations: {projects: [{"slug": "fabric-api", "type": "requiredDependency"}, {"slug": "midnightlib", "type": "requiredDependency"}, {"slug": "modmenu", "type": "optionalDependency"}]}}')
+          echo "METADATA: $METADATA"
+          RESP=$(curl -s -X POST -H "X-Api-Token: $CF_TOKEN" -F "metadata=$METADATA" -F "file=@/tmp/mod.jar" "https://minecraft.curseforge.com/api/projects/991296/upload-file")
+          echo "RESP: $RESP"
