@@ -3,6 +3,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 env:
   GRADLE_OPTS: -Dorg.gradle.daemon=false
@@ -180,12 +181,27 @@ jobs:
           IDS=$(jq -nc --argjson mc "$MC" --argjson ld "$LD" --argjson en "$EN" '$mc + $ld + $en')
           echo "resolved game version ids: $IDS"
           echo "$IDS" | jq -e 'length > 0' >/dev/null || { echo "NO VERSION IDS RESOLVED"; exit 1; }
-          METADATA=$(jq -n -c --arg v "$VERSION" --argjson ids "$IDS" '{changelog: "", changelogType: "markdown", displayName: $v, gameVersions: $ids, releaseType: "release"}')
+          python3 -c "import sys; sys.stdout.write(open('CHANGELOG.md', encoding='utf-8').read().replace(chr(13),''))" > /tmp/cl.md
+          REL=$(echo "${{ matrix.cfdeps }}" | jq -R -s -c '[split("\n")[] | select(length > 0) | capture("^(?<slug>[a-z0-9_-]+)\\((?<rel>required|optional|embedded|incompatible|tool)\\)$") | {slug: .slug, type: (if .rel == "required" then "requiredDependency" elif .rel == "optional" then "optionalDependency" elif .rel == "embedded" then "embeddedLibrary" else .rel end)}]')
+          echo "relations: $REL"
+          METADATA=$(jq -n -c --arg v "$VERSION" --argjson ids "$IDS" --rawfile cl /tmp/cl.md --argjson rel "$REL" '{changelog: $cl, changelogType: "markdown", displayName: $v, gameVersions: $ids, releaseType: "release", relations: {projects: $rel}}')
           echo "METADATA: $(echo "$METADATA" | head -c 300)"
           RESP=$(curl -s -X POST -H "X-Api-Token: $CF_TOKEN" -F "metadata=$METADATA" -F "file=@$JAR" "https://minecraft.curseforge.com/api/projects/$CF_PROJECT/upload-file")
           echo "$RESP" | head -c 400
           echo ""
           echo "$RESP" | jq -e '.id' >/dev/null || { echo "UPLOAD FAILED"; exit 1; }
+      - name: Verify ${{ matrix.subproject }} on CurseForge
+        if: steps.check_cf.outputs.cf_exists == 'false' && matrix.cf_mode == 'direct'
+        run: |
+          VERSION=$(grep 'mod_version' ${{ matrix.subproject }}/gradle.properties | cut -d= -f2)
+          for i in $(seq 1 12); do
+            FILES=$(curl -s "https://www.curseforge.com/api/v1/mods/991296/files?pageSize=50&sortBy=dateCreated&sortDescending=true")
+            COUNT=$(echo "$FILES" | jq --arg v "$VERSION" '[.data[] | select(.displayName == $v)] | length')
+            echo "cf files for $VERSION: $COUNT"
+            [ "$COUNT" -ge 1 ] && exit 0
+            sleep 10
+          done
+          echo "VERIFY FAILED: $VERSION not visible on CurseForge after upload"; exit 1
       - name: Publish ${{ matrix.subproject }} to CurseForge (mc-publish)
         if: steps.check_cf.outputs.cf_exists == 'false' && matrix.cf_mode == 'mcpublish'
         uses: Kira-NT/mc-publish@52307b03863581dec6b652b83e597aec02ebb075  # v3 — SHA-pinned (moving v3 tag silently changed CF game-version resolution 2026-08-10)
@@ -196,7 +212,7 @@ jobs:
           files: ${{ matrix.subproject }}/build/libs/!(*-@(dev|sources|javadoc)).jar
           loaders: ${{ matrix.loaders }}
           game-versions: ${{ matrix.gameversions }}
-          fail-mode: warn
+          fail-mode: error
           changelog-file: CHANGELOG.md
           curseforge-dependencies: ${{ matrix.cfdeps }}
       - name: Upload JAR
@@ -257,7 +273,7 @@ jobs:
           curseforge-version: ${{ steps.check_modrinth.outputs.version }}
           files: version-1_20_1-forge/build/libs/!(*-@(dev|sources|javadoc)).jar
           loaders: forge
-          fail-mode: warn
+          fail-mode: error
           changelog-file: CHANGELOG.md
           curseforge-dependencies: |-
             midnightlib(required)
