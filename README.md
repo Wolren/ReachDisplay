@@ -15,6 +15,7 @@ A configurable visual representation of your reach and hit distances.
 [![Modrinth](https://img.shields.io/modrinth/v/reach-display?label=Modrinth&logo=modrinth)](https://modrinth.com/mod/reach-display)
 [![Game versions](https://img.shields.io/modrinth/game-versions/reach-display?label=Game%20versions&logo=modrinth)](https://modrinth.com/mod/reach-display)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/Wolren/ReachDisplay/badge)](https://securityscorecards.dev/viewer/?uri=github.com/Wolren/ReachDisplay)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20Wolren-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/wolren)
 
 </div>
 
@@ -83,7 +84,7 @@ The 1.21 line is split into three builds because the Minecraft client API change
 incompatibly inside it: `PlayerEntity.isCreative` was remapped at 1.21.5 and the
 `DrawContext` matrix API switched from `MatrixStack` to `Matrix3x2fStack` at 1.21.6.
 Each build declares exactly the game versions it runs on, on both Modrinth and
-CurseForge — no overlaps, no duplicates.
+CurseForge - no overlaps, no duplicates.
 
 ## Configuration
 
