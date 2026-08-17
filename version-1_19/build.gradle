@@ -11,7 +11,7 @@ buildscript {
             // (fabric-loom only remaps mods detected via fabric.mod.json)
             classpath 'org.quiltmc:loom:1.15.1'
         } else {
-            classpath 'net.fabricmc:fabric-loom:1.17.17'
+            classpath 'net.fabricmc:fabric-loom:1.17.19'
         }
     }
 }
