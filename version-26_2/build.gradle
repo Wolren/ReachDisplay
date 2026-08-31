@@ -10,7 +10,7 @@ buildscript {
             // Quilt Loom understands quilt.mod.json and remaps quilted-fabric-api
             classpath 'org.quiltmc:loom:1.15.1'
         } else {
-            classpath 'net.fabricmc:fabric-loom:1.17.17'
+            classpath 'net.fabricmc:fabric-loom:1.17.20'
         }
     }
 }
