@@ -36,6 +36,8 @@ public abstract class GuiMixin {
     private long reach$lastDistanceUpdateTime = 0L;
     @Unique
     private String reach$lastDistanceDisplayString = "";
+    @Unique
+    private int reach$lastDistanceColor = 0xFFFFFF;
 
     @Unique
     private static int parseColorWithDefault(String colorHex) {
@@ -109,21 +111,20 @@ public abstract class GuiMixin {
             Entity targetEntity = ((EntityHitResult) target).getEntity();
             if (!targetEntity.isInvisibleTo(player) && (!DisplayConfig.entityFilterEnable || EntityFilterHelper.shouldTrack(targetEntity))) {
                 String displayString;
-                if (DisplayConfig.distanceUpdateRate > 0) {
-                    long now = System.currentTimeMillis();
-                    if (now - reach$lastDistanceUpdateTime < DisplayConfig.distanceUpdateRate) {
-                        displayString = reach$lastDistanceDisplayString;
-                    } else {
-                        displayString = getDisplayString(player, targetEntity);
-                        reach$lastDistanceUpdateTime = now;
-                        reach$lastDistanceDisplayString = displayString;
-                    }
+                int colorInt;
+                long now = System.currentTimeMillis();
+                if (DisplayConfig.distanceUpdateRate > 0 && now - reach$lastDistanceUpdateTime < DisplayConfig.distanceUpdateRate) {
+                    displayString = reach$lastDistanceDisplayString;
+                    colorInt = reach$lastDistanceColor;
                 } else {
-                    displayString = getDisplayString(player, targetEntity);
+                    // One distance, shared by the number and the colour, so the two can never disagree.
+                    Double dist = computeDistance(player, targetEntity);
+                    displayString = dist == null ? "" : formatDistance(dist);
+                    colorInt = resolveDistanceColorInt(player, dist == null ? 0.0 : dist);
+                    reach$lastDistanceUpdateTime = now;
+                    reach$lastDistanceDisplayString = displayString;
+                    reach$lastDistanceColor = colorInt;
                 }
-
-                double dist = player.getEyePosition().distanceTo(((EntityHitResult) target).getLocation());
-                int colorInt = resolveDistanceColorInt(player, dist);
                 float opacityScale = DisplayConfig.distanceOpacity;
                 int ARGBColorInt = parseARGBColorWithOpacity(opacityScale, colorInt);
                 boolean shadow = DisplayConfig.distanceShadow;
@@ -254,24 +255,18 @@ public abstract class GuiMixin {
     }
 
     @Unique
-    private String getDisplayString(Player player, Entity targetEntity) {
-        if (player.isSpectator()) return "";
-
-        int decimalPlaces = DisplayConfig.distanceDecimalPlaces;
-        DecimalFormat df = new DecimalFormat("0." + "0".repeat(decimalPlaces));
-        df.setRoundingMode(RoundingMode.DOWN);
+    private Double computeDistance(Player player, Entity targetEntity) {
+        if (player.isSpectator()) return null;
 
         double distance;
         Vec3 eyePos = player.getEyePosition();
 
         if (DisplayConfig.distanceCalculationMethod == DisplayConfig.DistanceCalculationMethod.RAY_HIT_POINT) {
             HitResult result = minecraft.hitResult;
-            if (!(result instanceof EntityHitResult entityHit) || entityHit.getEntity() != targetEntity) return "";
+            if (!(result instanceof EntityHitResult entityHit) || entityHit.getEntity() != targetEntity) return null;
 
             Vec3 hitPos = entityHit.getLocation();
             distance = eyePos.distanceTo(hitPos);
-
-
         } else {
             Vec3 closestPoint = new Vec3(
                     Math.max(targetEntity.getBoundingBox().minX, Math.min(eyePos.x, targetEntity.getBoundingBox().maxX)),
@@ -283,7 +278,15 @@ public abstract class GuiMixin {
         if (DisplayConfig.distanceSmoothInterpolation) {
             distance = smoothDistance(distance);
         }
-        return applyFontStyle(df.format(distance), DisplayConfig.distanceBold, DisplayConfig.distanceItalic, DisplayConfig.distanceUnderline);
+        return distance;
+    }
+
+    @Unique
+    private String formatDistance(double distance) {
+        int decimalPlaces = DisplayConfig.distanceDecimalPlaces;
+        DecimalFormat df = new DecimalFormat("0." + "0".repeat(decimalPlaces));
+        df.setRoundingMode(RoundingMode.DOWN);
+        return applyFontStyle(applyDisplayFormat(df.format(distance), DisplayConfig.distanceDisplayMode), DisplayConfig.distanceBold, DisplayConfig.distanceItalic, DisplayConfig.distanceUnderline);
     }
 
     @Unique

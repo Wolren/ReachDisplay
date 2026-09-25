@@ -2,8 +2,8 @@ package net.wolren.reach_display.mixin;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -34,6 +34,8 @@ public abstract class GuiMixin {
     private long reach$lastDistanceUpdateTime = 0L;
     @Unique
     private String reach$lastDistanceDisplayString = "";
+    @Unique
+    private int reach$lastDistanceColor = 0xFFFFFFFF;
 
     @Inject(at = @At("TAIL"), method = "extractRenderState")
     public void render(GuiGraphicsExtractor graphics, DeltaTracker tickCounter, CallbackInfo ci) {
@@ -48,21 +50,21 @@ public abstract class GuiMixin {
             Entity targetEntity = ((EntityHitResult) target).getEntity();
             if (!targetEntity.isInvisibleTo(player) && (!DisplayConfig.entityFilterEnable || EntityFilterHelper.shouldTrack(targetEntity))) {
                 String displayString;
-                if (DisplayConfig.distanceUpdateRate > 0) {
-                    long now = System.currentTimeMillis();
-                    if (now - reach$lastDistanceUpdateTime < DisplayConfig.distanceUpdateRate) {
-                        displayString = reach$lastDistanceDisplayString;
-                    } else {
-                        displayString = getDisplayString(player, targetEntity);
-                        reach$lastDistanceUpdateTime = now;
-                        reach$lastDistanceDisplayString = displayString;
-                    }
+                int argbColor;
+                long now = System.currentTimeMillis();
+                if (DisplayConfig.distanceUpdateRate > 0 && now - reach$lastDistanceUpdateTime < DisplayConfig.distanceUpdateRate) {
+                    displayString = reach$lastDistanceDisplayString;
+                    argbColor = reach$lastDistanceColor;
                 } else {
-                    displayString = getDisplayString(player, targetEntity);
+                    // One distance, shared by the number and the colour, so the two can never disagree.
+                    Double dist = computeDistance(player, targetEntity);
+                    displayString = dist == null ? "" : formatDistance(dist);
+                    argbColor = CustomRender.parseARGBColorWithOpacity(DisplayConfig.distanceOpacity,
+                            CustomRender.resolveDistanceColorInt(player.isCreative(), dist == null ? 0.0 : dist));
+                    reach$lastDistanceUpdateTime = now;
+                    reach$lastDistanceDisplayString = displayString;
+                    reach$lastDistanceColor = argbColor;
                 }
-
-                double dist = player.getEyePosition().distanceTo(((EntityHitResult) target).getLocation());
-                int colorInt = CustomRender.resolveDistanceColorInt(player.isCreative(), dist);
                 boolean shadow = DisplayConfig.distanceShadow;
                 int bgColor = DisplayConfig.distanceBackground
                         ? CustomRender.parseARGBColorWithOpacity(DisplayConfig.distanceBackgroundOpacity,
@@ -70,7 +72,7 @@ public abstract class GuiMixin {
                 int shadowColor = DisplayConfig.distanceShadow
                         ? CustomRender.parseARGBColorWithOpacity(1.0f,
                         CustomRender.parseColorWithDefault(DisplayConfig.distanceShadowColor)) : 0;
-                CustomRender.renderText(minecraft, graphics, displayString, 0, shadow, DisplayConfig.distanceScale,
+                CustomRender.renderText(minecraft, graphics, displayString, argbColor, shadow, DisplayConfig.distanceScale,
                         DisplayConfig.xOffset, DisplayConfig.yOffset, true, DisplayConfig.distanceBackground, bgColor, shadowColor);
             }
         }
@@ -83,7 +85,8 @@ public abstract class GuiMixin {
                 String displayString = getHitDisplayString(sharedData.getDistance());
 
                 double hitDist = sharedData.getDistance();
-                int colorInt = CustomRender.resolveHitColorInt(player.isCreative(), hitDist);
+                int argbColor = CustomRender.parseARGBColorWithOpacity(DisplayConfig.hitDistanceOpacity,
+                        CustomRender.resolveHitColorInt(player.isCreative(), hitDist));
                 boolean shadow = DisplayConfig.hitDistanceShadow;
                 int bgColor = DisplayConfig.hitDistanceBackground
                         ? CustomRender.parseARGBColorWithOpacity(DisplayConfig.hitDistanceBackgroundOpacity,
@@ -91,7 +94,7 @@ public abstract class GuiMixin {
                 int shadowColor = DisplayConfig.hitDistanceShadow
                         ? CustomRender.parseARGBColorWithOpacity(1.0f,
                         CustomRender.parseColorWithDefault(DisplayConfig.hitDistanceShadowColor)) : 0;
-                CustomRender.renderText(minecraft, graphics, displayString, 1, shadow, DisplayConfig.hitDistanceScale,
+                CustomRender.renderText(minecraft, graphics, displayString, argbColor, shadow, DisplayConfig.hitDistanceScale,
                         DisplayConfig.hitXOffset, DisplayConfig.hitYOffset, false, DisplayConfig.hitDistanceBackground, bgColor, shadowColor);
             }
         }
@@ -103,7 +106,8 @@ public abstract class GuiMixin {
                 String displayString = getAverageHitDisplayString(sharedData.getAverageDistance());
 
                 double avgDist = sharedData.getAverageDistance();
-                int colorInt = CustomRender.resolveAverageColorInt(player.isCreative(), avgDist);
+                int argbColor = CustomRender.parseARGBColorWithOpacity(DisplayConfig.averageHitDistanceOpacity,
+                        CustomRender.resolveAverageColorInt(player.isCreative(), avgDist));
                 boolean shadow = DisplayConfig.averageHitDistanceShadow;
                 int bgColor = DisplayConfig.averageHitDistanceBackground
                         ? CustomRender.parseARGBColorWithOpacity(DisplayConfig.averageHitDistanceBackgroundOpacity,
@@ -111,7 +115,7 @@ public abstract class GuiMixin {
                 int shadowColor = DisplayConfig.averageHitDistanceShadow
                         ? CustomRender.parseARGBColorWithOpacity(1.0f,
                         CustomRender.parseColorWithDefault(DisplayConfig.averageHitDistanceShadowColor)) : 0;
-                CustomRender.renderText(minecraft, graphics, displayString, 2, shadow, DisplayConfig.averageHitDistanceScale,
+                CustomRender.renderText(minecraft, graphics, displayString, argbColor, shadow, DisplayConfig.averageHitDistanceScale,
                         DisplayConfig.averageHitXOffset, DisplayConfig.averageHitYOffset, false, DisplayConfig.averageHitDistanceBackground, bgColor, shadowColor);
             }
         }
@@ -142,15 +146,15 @@ public abstract class GuiMixin {
     }
 
     @Unique
-    private String getDisplayString(Player player, Entity targetEntity) {
-        if (player.isSpectator()) return "";
+    private Double computeDistance(Player player, Entity targetEntity) {
+        if (player.isSpectator()) return null;
 
         double distance;
         Vec3 eyePos = player.getEyePosition();
 
         if (DisplayConfig.distanceCalculationMethod == DisplayConfig.DistanceCalculationMethod.RAY_HIT_POINT) {
             HitResult result = minecraft.hitResult;
-            if (!(result instanceof EntityHitResult entityHit) || entityHit.getEntity() != targetEntity) return "";
+            if (!(result instanceof EntityHitResult entityHit) || entityHit.getEntity() != targetEntity) return null;
 
             Vec3 hitPos = entityHit.getLocation();
             distance = eyePos.distanceTo(hitPos);
@@ -167,6 +171,11 @@ public abstract class GuiMixin {
         if (DisplayConfig.distanceSmoothInterpolation) {
             distance = smoothDistance(distance);
         }
+        return distance;
+    }
+
+    @Unique
+    private String formatDistance(double distance) {
         String rounded = CustomRender.getRoundedDouble(distance, DisplayConfig.distanceDecimalPlaces);
         return CustomRender.applyFontStyle(
                 CustomRender.applyDisplayFormat(rounded, DisplayConfig.distanceDisplayMode),

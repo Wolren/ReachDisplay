@@ -138,7 +138,7 @@ public class DisplayConfig extends MidnightConfig {
     @Entry(category = "3hitDistance", name = "Hit Distance Calculation Method")
     public static DistanceCalculationMethod hitDistanceCalculationMethod = DistanceCalculationMethod.RAY_HIT_POINT;
     @Entry(category = "3hitDistance", name = "Hit Color Bands")
-    public static boolean hitDistanceColorBandsEnabled = true;
+    public static boolean hitDistanceColorBandsEnabled = false;
     @Entry(category = "3hitDistance", name = "Hit Band 1 Threshold", isSlider = true, min = 0.0f, max = 10.0f, precision = 10)
     public static float hitDistanceBand1Threshold = 1.0f;
     @Entry(category = "3hitDistance", name = "Hit Band 1 Color", isColor = true)

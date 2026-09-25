@@ -11,6 +11,7 @@ import java.util.Queue;
 
 public class SharedData {
     private static final String GLOBAL_AVERAGE_FILE_NAME = "global_average_hits.txt";
+    private static final String GLOBAL_AVERAGE_HEADER = "#reachdisplay-global-average-v1";
     private static SharedData instance;
     private final Queue<Double> lastHitsDistance = new LinkedList<>();
     private double localAverageDistance = 0;
@@ -18,21 +19,10 @@ public class SharedData {
     private double averageDistance = 0;
     private double distance;
     private Entity entity;
-    private PrintWriter writer;
     private double globalSum = 0;
     private int globalCount = 0;
     private boolean globalCacheLoaded = false;
     private long lastHitTimestamp = 0;
-
-    private SharedData() {
-        Path configDir = FMLPaths.CONFIGDIR.get();
-        File globalAverageFile = configDir.resolve(GLOBAL_AVERAGE_FILE_NAME).toFile();
-        try {
-            writer = new PrintWriter(new FileWriter(globalAverageFile, true));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     public static SharedData getInstance() {
         if (instance == null) {
@@ -55,33 +45,14 @@ public class SharedData {
             }
             case GLOBAL_AVERAGE -> {
                 if (!globalCacheLoaded) {
-                    Path configDir = FMLPaths.CONFIGDIR.get();
-                    File globalAverageFile = configDir.resolve(GLOBAL_AVERAGE_FILE_NAME).toFile();
-                    if (globalAverageFile.exists()) {
-                        try (BufferedReader reader = new BufferedReader(new FileReader(globalAverageFile))) {
-                            String line;
-                            while ((line = reader.readLine()) != null) {
-                                String[] distances = line.split(", ");
-                                for (String distanceStr : distances) {
-                                    if (!distanceStr.trim().isEmpty()) {
-                                        globalSum += Double.parseDouble(distanceStr);
-                                        globalCount++;
-                                    }
-                                }
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
+                    loadGlobalAverage();
                     globalCacheLoaded = true;
                 }
-
-                writer.append(Double.toString(distance)).append(", ");
-                writer.flush();
 
                 globalSum += distance;
                 globalCount++;
                 averageDistance = globalSum / globalCount;
+                saveGlobalAverage();
             }
             case LAST_HITS -> {
                 this.lastHitsDistance.add(distance);
@@ -94,6 +65,9 @@ public class SharedData {
     }
 
     private double calculateAverageLastHitsDistance() {
+        if (lastHitsDistance.isEmpty()) {
+            return 0;
+        }
         double sum = 0;
         for (double distance : lastHitsDistance) {
             sum += distance;
@@ -114,13 +88,7 @@ public class SharedData {
     }
 
     public void close() {
-        if (writer != null) {
-            writer.close();
-        }
-    }
-
-    public long getLastHitTimestamp() {
-        return lastHitTimestamp;
+        // No long-lived handle: the global average is written through on every recorded hit.
     }
 
     public void setLastHitTimestamp(long timestamp) {
@@ -131,4 +99,82 @@ public class SharedData {
         if (lastHitTimestamp == 0) return true;
         return System.currentTimeMillis() - lastHitTimestamp > timeoutMs;
     }
-}
+
+    private File getGlobalAverageFile() {
+        Path configDir = FMLPaths.CONFIGDIR.get();
+        return configDir.resolve(GLOBAL_AVERAGE_FILE_NAME).toFile();
+    }
+
+    private double parseOrZero(String[] parts, int index) {
+        if (index >= parts.length) {
+            return 0;
+        }
+        try {
+            return Double.parseDouble(parts[index]);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    private void accumulateLegacyLine(String line) {
+        String trimmed = line.trim();
+        if (trimmed.isEmpty()) {
+            return;
+        }
+        for (String value : trimmed.split("[,;\\s]+")) {
+            if (value.isEmpty()) {
+                continue;
+            }
+            try {
+                globalSum += Double.parseDouble(value);
+                globalCount++;
+            } catch (NumberFormatException ignored) {
+            }
+        }
+    }
+
+    private void loadGlobalAverage() {
+        File globalAverageFile = getGlobalAverageFile();
+        if (!globalAverageFile.exists()) {
+            return;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(globalAverageFile))) {
+            String first = reader.readLine();
+            if (first != null && GLOBAL_AVERAGE_HEADER.equals(first.trim())) {
+                String data = reader.readLine();
+                if (data == null) {
+                    return;
+                }
+                String[] parts = data.trim().split("[,;\\s]+");
+                globalSum = parseOrZero(parts, 0);
+                globalCount = (int) Math.round(parseOrZero(parts, 1));
+                return;
+            }
+            if (first == null) {
+                return;
+            }
+
+            // The old file was an append-only list of every hit ever recorded. It is now
+            // folded into sum/count and rewritten, so the file no longer grows without
+            // bound and is never re-parsed in full again on a later session.
+            String line = first;
+            do {
+                accumulateLegacyLine(line);
+                line = reader.readLine();
+            } while (line != null);
+            saveGlobalAverage();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveGlobalAverage() {
+        File globalAverageFile = getGlobalAverageFile();
+        try (PrintWriter writer = new PrintWriter(new FileWriter(globalAverageFile, false))) {
+            writer.println(GLOBAL_AVERAGE_HEADER);
+            writer.println(globalSum + "," + globalCount);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }}

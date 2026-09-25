@@ -9,30 +9,13 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class CustomRender {
     private static final Map<Integer, DecimalFormat> FORMATTER_CACHE = new HashMap<>();
-    private static String cachedDistanceColorHex;
-    private static float cachedDistanceOpacityScale;
-    private static int cachedDistanceARGBColor;
-    private static String cachedHitDistanceColorHex;
-    private static float cachedHitDistanceOpacityScale;
-    private static int cachedHitDistanceARGBColor;
-    private static String cachedAverageHitDistanceColorHex;
-    private static float cachedAverageHitDistanceOpacityScale;
-    private static int cachedAverageHitDistanceARGBColor;
 
-    public static void renderText(Minecraft minecraft, GuiGraphicsExtractor context, String text, int textClass,
+    public static void renderText(Minecraft minecraft, GuiGraphicsExtractor context, String text, int color,
                                   boolean shadow, float scale, int xOffset, int yOffset, boolean centered,
                                   boolean drawBackground, int bgColor, int shadowColor) {
-        int color = switch (textClass) {
-            case 0 -> getDistanceARGBColor();
-            case 1 -> getHitDistanceARGBColor();
-            case 2 -> getAverageHitDistanceARGBColor();
-            default -> 0xFFFFFF;
-        };
-
         Font font = minecraft.font;
         float y;
         float x;
@@ -163,38 +146,5 @@ public class CustomRender {
             return parseColorWithDefault(DisplayConfig.averageHitDistanceBand3Color);
         }
         return parseColorWithDefault(DisplayConfig.averageHitDistanceColor);
-    }
-
-    private static int getDistanceARGBColor() {
-        String hex = DisplayConfig.distanceColor;
-        float op = DisplayConfig.distanceOpacity;
-        if (!Objects.equals(hex, cachedDistanceColorHex) || op != cachedDistanceOpacityScale) {
-            cachedDistanceARGBColor = parseARGBColorWithOpacity(op, parseColorWithDefault(hex));
-            cachedDistanceColorHex = hex;
-            cachedDistanceOpacityScale = op;
-        }
-        return cachedDistanceARGBColor;
-    }
-
-    private static int getHitDistanceARGBColor() {
-        String hex = DisplayConfig.hitDistanceColor;
-        float op = DisplayConfig.hitDistanceOpacity;
-        if (!Objects.equals(hex, cachedHitDistanceColorHex) || op != cachedHitDistanceOpacityScale) {
-            cachedHitDistanceARGBColor = parseARGBColorWithOpacity(op, parseColorWithDefault(hex));
-            cachedHitDistanceColorHex = hex;
-            cachedHitDistanceOpacityScale = op;
-        }
-        return cachedHitDistanceARGBColor;
-    }
-
-    private static int getAverageHitDistanceARGBColor() {
-        String hex = DisplayConfig.averageHitDistanceColor;
-        float op = DisplayConfig.averageHitDistanceOpacity;
-        if (!Objects.equals(hex, cachedAverageHitDistanceColorHex) || op != cachedAverageHitDistanceOpacityScale) {
-            cachedAverageHitDistanceARGBColor = parseARGBColorWithOpacity(op, parseColorWithDefault(hex));
-            cachedAverageHitDistanceColorHex = hex;
-            cachedAverageHitDistanceOpacityScale = op;
-        }
-        return cachedAverageHitDistanceARGBColor;
     }
 }

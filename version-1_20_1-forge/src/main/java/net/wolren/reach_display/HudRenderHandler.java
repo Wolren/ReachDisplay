@@ -22,6 +22,7 @@ public class HudRenderHandler {
     private double smoothedCrosshairDistance = 0.0;
     private long lastDistanceUpdateTime = 0L;
     private String lastDistanceDisplayString = "";
+    private int lastDistanceColor = 0xFFFFFF;
 
     @SubscribeEvent
     public void onRenderGui(RenderGuiEvent.Post event) {
@@ -38,21 +39,20 @@ public class HudRenderHandler {
             Entity targetEntity = ((EntityHitResult) target).getEntity();
             if (!targetEntity.isInvisibleTo(player) && (!DisplayConfig.entityFilterEnable || EntityFilterHelper.shouldTrack(targetEntity))) {
                 String displayString;
-                if (DisplayConfig.distanceUpdateRate > 0) {
-                    long now = System.currentTimeMillis();
-                    if (now - lastDistanceUpdateTime < DisplayConfig.distanceUpdateRate) {
-                        displayString = lastDistanceDisplayString;
-                    } else {
-                        displayString = getDisplayString(client, player, targetEntity);
-                        lastDistanceUpdateTime = now;
-                        lastDistanceDisplayString = displayString;
-                    }
+                int colorInt;
+                long now = System.currentTimeMillis();
+                if (DisplayConfig.distanceUpdateRate > 0 && now - lastDistanceUpdateTime < DisplayConfig.distanceUpdateRate) {
+                    displayString = lastDistanceDisplayString;
+                    colorInt = lastDistanceColor;
                 } else {
-                    displayString = getDisplayString(client, player, targetEntity);
+                    // One distance, shared by the number and the colour, so the two can never disagree.
+                    Double dist = computeDistance(client, player, targetEntity);
+                    displayString = dist == null ? "" : formatDistance(dist);
+                    colorInt = resolveDistanceColorInt(player, dist == null ? 0.0 : dist);
+                    lastDistanceUpdateTime = now;
+                    lastDistanceDisplayString = displayString;
+                    lastDistanceColor = colorInt;
                 }
-
-                double dist = player.getEyePosition().distanceTo(((EntityHitResult) target).getLocation());
-                int colorInt = resolveDistanceColorInt(player, dist);
                 float opacityScale = DisplayConfig.distanceOpacity;
                 int ARGBColorInt = parseARGBColorWithOpacity(opacityScale, colorInt);
                 boolean shadow = DisplayConfig.distanceShadow;
@@ -175,23 +175,18 @@ public class HudRenderHandler {
         return applyFontStyle(applyDisplayFormat(df.format(distance), DisplayConfig.hitDistanceDisplayMode), DisplayConfig.hitDistanceBold, DisplayConfig.hitDistanceItalic, DisplayConfig.hitDistanceUnderline);
     }
 
-    private String getDisplayString(Minecraft client, Player player, Entity targetEntity) {
-        if (player.isSpectator()) return "";
-
-        int decimalPlaces = DisplayConfig.distanceDecimalPlaces;
-        DecimalFormat df = new DecimalFormat("0." + "0".repeat(decimalPlaces));
-        df.setRoundingMode(RoundingMode.DOWN);
+    private Double computeDistance(Minecraft client, Player player, Entity targetEntity) {
+        if (player.isSpectator()) return null;
 
         double distance;
         Vec3 eyePos = player.getEyePosition();
 
         if (DisplayConfig.distanceCalculationMethod == DisplayConfig.DistanceCalculationMethod.RAY_HIT_POINT) {
             HitResult result = client.hitResult;
-            if (!(result instanceof EntityHitResult entityHit) || entityHit.getEntity() != targetEntity) return "";
+            if (!(result instanceof EntityHitResult entityHit) || entityHit.getEntity() != targetEntity) return null;
 
             Vec3 hitPos = entityHit.getLocation();
             distance = eyePos.distanceTo(hitPos);
-
         } else {
             Vec3 closestPoint = new Vec3(
                     Math.max(targetEntity.getBoundingBox().minX, Math.min(eyePos.x, targetEntity.getBoundingBox().maxX)),
@@ -203,7 +198,14 @@ public class HudRenderHandler {
         if (DisplayConfig.distanceSmoothInterpolation) {
             distance = smoothDistance(distance);
         }
-        return applyFontStyle(df.format(distance), DisplayConfig.distanceBold, DisplayConfig.distanceItalic, DisplayConfig.distanceUnderline);
+        return distance;
+    }
+
+    private String formatDistance(double distance) {
+        int decimalPlaces = DisplayConfig.distanceDecimalPlaces;
+        DecimalFormat df = new DecimalFormat("0." + "0".repeat(decimalPlaces));
+        df.setRoundingMode(RoundingMode.DOWN);
+        return applyFontStyle(applyDisplayFormat(df.format(distance), DisplayConfig.distanceDisplayMode), DisplayConfig.distanceBold, DisplayConfig.distanceItalic, DisplayConfig.distanceUnderline);
     }
 
     private void renderText(Minecraft client, GuiGraphics context, String text, float x, float y, int color, boolean shadow, float scale, boolean drawBackground, int bgColor, int shadowColor) {
