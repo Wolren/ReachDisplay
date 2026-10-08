@@ -200,7 +200,9 @@ jobs:
         if: steps.check_cf.outputs.cf_exists == 'false' && matrix.cf_mode == 'direct'
         run: |
           VERSION=$(grep 'mod_version' ${{ matrix.subproject }}/gradle.properties | cut -d= -f2)
-          for i in $(seq 1 12); do
+          # The public files listing refreshes in batches: uploads were accepted at
+          # 17:16 but only became visible ~3 minutes later, so 12 x 10s was too short.
+          for i in $(seq 1 30); do
             FILES=$(curl -s "https://www.curseforge.com/api/v1/mods/991296/files?pageSize=50&sortBy=dateCreated&sortDescending=true")
             COUNT=$(echo "$FILES" | jq --arg v "$VERSION" '[.data[] | select(.displayName == $v)] | length')
             echo "cf files for $VERSION: $COUNT"
