@@ -189,7 +189,10 @@ jobs:
           echo "relations: $REL"
           METADATA=$(jq -n -c --arg v "$VERSION" --argjson ids "$IDS" --rawfile cl /tmp/cl.md --argjson rel "$REL" '{changelog: $cl, changelogType: "markdown", displayName: $v, gameVersions: $ids, releaseType: "release", relations: {projects: $rel}}')
           echo "METADATA: $(echo "$METADATA" | head -c 300)"
-          RESP=$(curl -s -X POST -H "X-Api-Token: $CF_TOKEN" -F "metadata=$METADATA" -F "file=@$JAR" "https://minecraft.curseforge.com/api/projects/$CF_PROJECT/upload-file")
+          # --form-string, not -F: the changelog contains ';' and curl would treat
+          # the rest of the JSON as form options, sending truncated metadata
+          # (CurseForge answered 1002 "Invalid JSON").
+          RESP=$(curl -s -X POST -H "X-Api-Token: $CF_TOKEN" --form-string "metadata=$METADATA" -F "file=@$JAR" "https://minecraft.curseforge.com/api/projects/$CF_PROJECT/upload-file")
           echo "$RESP" | head -c 400
           echo ""
           echo "$RESP" | jq -e '.id' >/dev/null || { echo "UPLOAD FAILED"; exit 1; }
@@ -215,7 +218,7 @@ jobs:
           files: ${{ matrix.subproject }}/build/libs/!(*-@(dev|sources|javadoc)).jar
           loaders: ${{ matrix.loaders }}
           game-versions: ${{ matrix.gameversions }}
-          fail-mode: error
+          fail-mode: fail
           changelog-file: CHANGELOG.md
           curseforge-dependencies: ${{ matrix.cfdeps }}
       - name: Upload JAR
@@ -276,7 +279,7 @@ jobs:
           curseforge-version: ${{ steps.check_modrinth.outputs.version }}
           files: version-1_20_1-forge/build/libs/!(*-@(dev|sources|javadoc)).jar
           loaders: forge
-          fail-mode: error
+          fail-mode: fail
           changelog-file: CHANGELOG.md
           curseforge-dependencies: |-
             midnightlib(required)
