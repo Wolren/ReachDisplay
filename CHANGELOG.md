@@ -1,5 +1,21 @@
 # Changelog
 
+## 3.1.2 - Colour Bands Fixed on 26.x, New Icon
+
+### Fixed
+
+- Colour bands and gradients did nothing on 26.1.2, 26.2 and 26.2 NeoForge: the resolved
+  colour was written to a variable that was never read, so the flat colour option always won
+- The crosshair colour and the number were computed from two different distances and could
+  disagree; both read the same value now, smoothing and calculation method included
+- The colour ignored the distance update rate, and the blocks/metres display mode never
+  applied on 1.20.1 through 1.21.11
+- Band colouring defaults to off on fresh configs, like the other two displays
+
+### Changed
+
+- New mod icon across all builds, about 40% smaller file
+
 ## 3.1.1 - Forge + NeoForge Ports, Quilt Publishing Fixed
 
 ### Added
