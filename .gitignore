@@ -20,3 +20,11 @@ Thumbs.db
 *.log
 
 agents.md
+CLAUDE.md
+.cursorrules
+.windsurfrules
+.hermes/
+.ai/
+*.ai
+.prompt
+.copilot-instructions.md
