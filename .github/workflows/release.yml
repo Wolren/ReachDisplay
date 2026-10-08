@@ -13,9 +13,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Gradle runs on 25: fabric-loom 1.18.2 refuses older JVMs at configuration
+        # time. Each subproject still compiles with its own toolchain (17/21/25),
+        # so the bytecode target of the jars does not change.
         include:
           - subproject: version-1_17_1_18
-            jdk: '21'
+            jdk: '25'
             loaders: fabric,quilt
             gameversions: 1.17.1,1.18,1.18.1,1.18.2
             cf_mode: direct
@@ -24,7 +27,7 @@ jobs:
               midnightlib(required)
               modmenu(optional)
           - subproject: version-1_19
-            jdk: '21'
+            jdk: '25'
             loaders: fabric,quilt
             gameversions: 1.19.1,1.19.2,1.19.3,1.19.4
             cf_mode: direct
@@ -33,7 +36,7 @@ jobs:
               midnightlib(required)
               modmenu(optional)
           - subproject: version-1_20_1
-            jdk: '21'
+            jdk: '25'
             loaders: fabric,quilt
             gameversions: 1.20.1,1.20.2,1.20.3,1.20.4,1.20.5,1.20.6
             cf_mode: direct
@@ -42,7 +45,7 @@ jobs:
               midnightlib(required)
               modmenu(optional)
           - subproject: version-1_21_1
-            jdk: '21'
+            jdk: '25'
             loaders: fabric,quilt
             gameversions: 1.21.1,1.21.2,1.21.3,1.21.4
             cf_mode: direct
@@ -51,7 +54,7 @@ jobs:
               midnightlib(required)
               modmenu(optional)
           - subproject: version-1_21_5
-            jdk: '21'
+            jdk: '25'
             loaders: fabric,quilt
             gameversions: 1.21.5
             cf_mode: direct
@@ -60,7 +63,7 @@ jobs:
               midnightlib(required)
               modmenu(optional)
           - subproject: version-1_21_11
-            jdk: '21'
+            jdk: '25'
             loaders: fabric,quilt
             gameversions: 1.21.6,1.21.7,1.21.8,1.21.9,1.21.10,1.21.11
             cf_mode: direct
@@ -87,13 +90,13 @@ jobs:
               midnightlib(required)
               modmenu(optional)
           - subproject: version-1_21_1-neoforge
-            jdk: '21'
+            jdk: '25'
             loaders: neoforge
             cf_mode: mcpublish
             cfdeps: |-
               midnightlib(required)
           - subproject: version-1_21_11-neoforge
-            jdk: '21'
+            jdk: '25'
             loaders: neoforge
             cf_mode: mcpublish
             cfdeps: |-
