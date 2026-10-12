@@ -3,7 +3,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.modrinth.minotaur:Minotaur:2.9.0'
+        classpath 'com.modrinth.minotaur:Minotaur:2.10.0'
     }
 }
 
