@@ -1,0 +1,61 @@
+buildscript {
+    repositories {
+        maven { url = 'https://maven.fabricmc.net/' }
+        maven { url = 'https://maven.quiltmc.org/repository/release/' }
+        gradlePluginPortal()
+    }
+    dependencies {
+        boolean useQuilt = project.hasProperty('useQuilt') ? project.useQuilt.toBoolean() : false
+        if (useQuilt) {
+            // Quilt Loom understands quilt.mod.json and remaps quilted-fabric-api
+            classpath 'org.quiltmc:loom:1.15.1'
+        } else {
+            classpath 'net.fabricmc:fabric-loom:1.18.2'
+        }
+    }
+}
+
+boolean useQuilt = project.hasProperty('useQuilt') ? project.useQuilt.toBoolean() : false
+
+if (useQuilt) {
+    apply plugin: 'org.quiltmc.loom.no_remap'
+} else {
+    apply plugin: 'net.fabricmc.fabric-loom'
+}
+
+loom {
+    mods {
+        "reach_display" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    // MC 26.1+ ships unobfuscated: no mappings line, no remap configurations.
+
+    if (useQuilt) {
+        implementation "org.quiltmc:quilt-loader:${project.quilt_loader_version}"
+        // No quilted-fabric-api for 26.x yet; fabric-api runs natively on Quilt Loader
+        implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+        // quilt-loader does not bundle the Mixin API; fabric-loader pulls it in transitively
+        implementation "net.fabricmc:sponge-mixin:${project.mixin_api_version}"
+    } else {
+        implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+        implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    }
+
+    implementation "maven.modrinth:midnightlib:${project.midnightlib_version}"
+    implementation "maven.modrinth:modmenu:${project.modmenu_version}"
+
+    include implementation("io.github.llamalad7:mixinextras-fabric:${project.mixinextras_version}")
+}
+
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(25) }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 25
+}

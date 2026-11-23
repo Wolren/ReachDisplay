@@ -77,8 +77,9 @@ Required dependencies:
 | 1.21.6 – 1.21.11 | 3.1.0-1.21.11 | Fabric, Quilt, NeoForge |
 | 26.1.2 | 3.1.0-26.1.2 | Fabric, Quilt |
 | 26.2 | 3.1.0-26.2 | Fabric, Quilt, NeoForge |
+| 26.3 | 3.1.3-26.3 | Fabric, Quilt, NeoForge |
 
-Requires Java 17 (1.20.1 Forge), Java 21 (1.18.2-1.21.11), or Java 25 (26.1.2, 26.2). Client-side mod; no server-side installation needed.
+Requires Java 17 (1.20.1 Forge), Java 21 (1.18.2-1.21.11), or Java 25 (26.1.2, 26.2, 26.3). Client-side mod; no server-side installation needed.
 
 The 1.21 line is split into three builds because the Minecraft client API changed
 incompatibly inside it: `PlayerEntity.isCreative` was remapped at 1.21.5 and the

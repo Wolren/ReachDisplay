@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.1.3 - Minecraft 26.3
+
+### Added
+
+- Minecraft 26.3 builds for Fabric, Quilt and NeoForge (`3.1.3-26.3`, `3.1.3-26.3-neoforge`)
+- Fabric API 0.167.0+26.3, MidnightLib 1.10.0+26.3, Mod Menu 21.0.1 and NeoForge 26.3.0.115
+
+### Changed
+
+- Fabric loader floor on 26.3 is 0.20.1; MixinExtras is 0.5.5
+- The 26.2 sources compile unchanged on 26.3; the HUD, attack and stab hooks keep their signatures
+
 ## 3.1.2 - Colour Bands Fixed on 26.x, New Icon
 
 ### Fixed

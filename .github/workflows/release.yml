@@ -89,6 +89,15 @@ jobs:
               fabric-api(required)
               midnightlib(required)
               modmenu(optional)
+          - subproject: version-26_3
+            jdk: '25'
+            loaders: fabric,quilt
+            gameversions: 26.3
+            cf_mode: direct
+            cfdeps: |-
+              fabric-api(required)
+              midnightlib(required)
+              modmenu(optional)
           - subproject: version-1_21_1-neoforge
             jdk: '25'
             loaders: neoforge
@@ -102,6 +111,12 @@ jobs:
             cfdeps: |-
               midnightlib(required)
           - subproject: version-26_2-neoforge
+            jdk: '25'
+            loaders: neoforge
+            cf_mode: mcpublish
+            cfdeps: |-
+              midnightlib(required)
+          - subproject: version-26_3-neoforge
             jdk: '25'
             loaders: neoforge
             cf_mode: mcpublish

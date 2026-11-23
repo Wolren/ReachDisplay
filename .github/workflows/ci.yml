@@ -34,11 +34,15 @@ jobs:
             jdk: '25'
           - subproject: version-26_2
             jdk: '25'
+          - subproject: version-26_3
+            jdk: '25'
           - subproject: version-1_21_1-neoforge
             jdk: '25'
           - subproject: version-1_21_11-neoforge
             jdk: '25'
           - subproject: version-26_2-neoforge
+            jdk: '25'
+          - subproject: version-26_3-neoforge
             jdk: '25'
     runs-on: ubuntu-latest
     steps:
